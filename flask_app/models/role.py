@@ -11,8 +11,16 @@ class Role:
         self.updated_at = data["updated_at"]
 
     @classmethod
+    def create_role(cls, data):
+        query = """
+        INSERT INTO roles (name)
+        VALUES (%(name)s);
+        """
+        return connectToMySQL(cls.db_name).query_db(query, data)
+
+    @classmethod
     def get_all_roles(cls):
-        query = "SELECT * FROM roles";
+        query = "SELECT * FROM roles;"
         results = connectToMySQL(cls.db_name).query_db(query)
         roles = []
         if len(results) > 0:

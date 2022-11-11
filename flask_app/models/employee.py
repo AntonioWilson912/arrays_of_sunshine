@@ -49,12 +49,13 @@ class Employee:
         SET password = %(password)s
         WHERE id = %(id)s;
         """
+        return connectToMySQL(cls.db_name).query_db(query, data)
 
     @classmethod
     def get_all_employees(cls):
         query = """
         SELECT * FROM employees
-        JOIN roles ON employees.role_id = roles.id;
+        LEFT JOIN roles ON employees.role_id = roles.id;
         """
         results = connectToMySQL(cls.db_name).query_db(query)
         employees = []
@@ -69,6 +70,8 @@ class Employee:
                 }
                 role_obj = role.Role(role_data)
                 employee.role = role_obj
+
+                employees.append(employee)
 
         return employees
 
