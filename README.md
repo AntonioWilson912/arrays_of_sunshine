@@ -13,3 +13,5 @@ Allows managers to create, view, edit, and delete time cards for their employees
 - View their time cards. CANNOT edit or delete.
 - View the team roster.
 - Must register using the registration code given to them upon hiring.
+
+Download link for usage of pdfkit: [WKHTMLTOPDF](https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_msvc2015-win64.exe)
