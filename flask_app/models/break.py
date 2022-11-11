@@ -1,6 +1,8 @@
 from flask_app.config.mysqlconnection import connectToMySQL
 
 class Break:
+    db_name = "arrays_of_sunshine"
+
     def __init__(self, data):
         self.id = data["id"]
         self.break_start = data["break_start"]

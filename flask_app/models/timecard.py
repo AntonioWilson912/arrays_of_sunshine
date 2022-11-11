@@ -1,6 +1,9 @@
 from flask_app.config.mysqlconnection import connectToMySQL
 
 class TimeCard:
+
+    db_name = "arrays_of_sunshine"
+
     def __init__(self, data):
         self.id = data["id"]
         self.date = data["date"]
