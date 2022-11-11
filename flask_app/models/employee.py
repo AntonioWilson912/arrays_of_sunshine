@@ -35,7 +35,20 @@ class Employee:
 
     @classmethod
     def create_employee(cls, data):
-        pass
+        query = """
+        INSERT INTO employees
+        (first_name, last_name, email, phone_number, pin_code, reg_code, role_id)
+        VALUES (%(first_name)s, %(last_name)s, %(email)s, %(phone_number)s, %(pin_code)s, %(reg_code)s, %(role_id)s);
+        """
+        return connectToMySQL(cls.db_name).query_db(query, data)
+
+    @classmethod
+    def register_employee(cls, data):
+        query = """
+        UPDATE employees
+        SET password = %(password)s
+        WHERE id = %(id)s;
+        """
 
     @classmethod
     def get_all_employees(cls):

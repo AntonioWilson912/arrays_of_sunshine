@@ -1,5 +1,5 @@
 from flask_app import app
-from flask_app.controllers import users # INSERT OTHER CONTROLLERS HERE!
+from flask_app.controllers import employees # INSERT OTHER CONTROLLERS HERE!
 
 if __name__ == "__main__":
     app.run(debug=True)
