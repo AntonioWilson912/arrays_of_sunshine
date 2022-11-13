@@ -58,13 +58,13 @@ def employee_dashboard():
     employee.Employee.get_employee_by_id(data)
     return render_template('dashboard_employee.html')
 
-@app.route("/employee-dashboard")
-def employee_dashboard():
+@app.route("/manager-dashboard")
+def manager_dashboard():
     if 'id' not in session:
         return redirect("/")
     
     employees = employee.Employee.get_all_employees()
-    return render_template('dashboard_employee.html', employees = employees )
+    return render_template('dashboard_manager.html', employees = employees )
 
 
 @app.route("/edit-employee", methods = ['POST'])
