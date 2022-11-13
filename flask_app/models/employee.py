@@ -1,5 +1,13 @@
 from flask_app.config.mysqlconnection import connectToMySQL
 from flask_app.models import role
+from flask import flash
+
+from flask_bcrypt import Bcrypt
+from flask_app import app
+import re
+bcrypt = Bcrypt(app)
+
+EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9.+_-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$')
 
 class Employee:
 
@@ -27,11 +35,29 @@ class Employee:
 
     @staticmethod
     def validate_register_employee(data):
-        pass
+        is_valid = True 
+        # Assume true and assign false if it is not valid.
+        #Email validation
+        if not EMAIL_REGEX.match(data['email']): 
+                flash(u"Invalid email address!", 'email_invalid')
+                is_valid = False
+        if len(data['first_name']) < 2:
+                flash(u"First name must be more than 2 characters.", 'password_less_than_six')
+                is_valid = False
+        if len(data['last_name']) < 2:
+                flash(u"Last name must be more than 2 characters.", 'password_less_than_six')
+                is_valid = False
+        if len(data['password']) < 6:
+                flash(u"Password Must be more than 6 characters.", 'password_less_than_six')
+                is_valid = False
+        if (data['confirm_password']) != data['password']:
+                flash(u"Passwords must match.", 'confirm_password')
+                is_valid = False
+        return is_valid
 
     @staticmethod
     def validate_login_employee(data):
-        pass
+        pa
 
     @classmethod
     def create_employee(cls, data):
