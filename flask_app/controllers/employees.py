@@ -8,12 +8,34 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/register-employee" , methods = ['POST'])
+@app.route("/register-employee-page" , methods = ['POST'])
+def register_employee_page():
+    if employee.Employee.validate_register_employee_login(request.form):
+        registering_employee = employee.Employee.get_employee_by_email(request.form)
+        session['id'] = registering_employee.id
+        return render_template('register_employee.html', employee = registering_employee)
+    
+    return request.referrer
+
+@app.route('/register-employee', methods = ['POST'])
 def register_employee():
+    if 'id' not in session:
+        return redirect("/")
+    data = { "id" : session['id']}
+    employee.Employee.update_employee(request.form)
+    user_employee = employee.Employee.get_employee_by_id(data)
+    
+    
+    return redirect("/employee-dashboard", employee = user_employee)
+
+@app.route("/create-employee" , methods = ['POST'])
+def create_employee():
+    if 'id' not in session:
+        return redirect("/")
     if employee.Employee.validate_register_employee(request.form):
-        employee.Employee.create_employee(request.form)
-        session['id'] = employee.Employee.id
-        return render_template('dashboard_employee.html', employee = employee.Employee)
+        employee.Employee.register_employee(request.form)
+
+        return redirect('/manager-dashboard')
     
     return request.referrer
 
@@ -21,12 +43,28 @@ def register_employee():
 @app.route("/login-employee", methods = ['POST'])
 def login_employee():
     if employee.Employee.validate_login_employee(request.form):
-        employee.Employee.get_employee_by_email(request.form)
-        session['id'] = employee.Employee.id
-        return render_template('dashboard_employee.html', employee = employee.Employee)
+        login_employee = employee.Employee.get_employee_by_email(request.form)
+        session['id'] = login_employee.id
+        return render_template('dashboard_employee.html', employee = login_employee)
     
     else: 
         return request.referrer
+    
+@app.route("/employee-dashboard")
+def employee_dashboard():
+    if 'id' not in session:
+        return redirect("/")
+    data = { "id" : session['id']}
+    employee.Employee.get_employee_by_id(data)
+    return render_template('dashboard_employee.html')
+
+@app.route("/employee-dashboard")
+def employee_dashboard():
+    if 'id' not in session:
+        return redirect("/")
+    
+    employees = employee.Employee.get_all_employees()
+    return render_template('dashboard_employee.html', employees = employees )
 
 
 @app.route("/edit-employee", methods = ['POST'])
@@ -35,6 +73,7 @@ def edit_employee(id):
         return redirect("/")
     data = { "id" : id}
     employee.Employee.delete_employee(data)
+    return 'success', 200
     
 
 @app.route("/delete-employee")
