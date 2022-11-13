@@ -34,7 +34,7 @@ class Employee:
         self.role = None
 
     @staticmethod
-    def validate_register_employee_login(data):
+    def validate_register_employee(data):
         is_valid = True 
         # Assume true and assign false if it is not valid.
         if not Employee.get_employee_by_email(data):

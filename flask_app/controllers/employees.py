@@ -67,6 +67,7 @@ def manager_dashboard():
     return render_template('dashboard_manager.html', employees = employees )
 
 
+#Ajax route
 @app.route("/edit-employee", methods = ['POST'])
 def edit_employee(id):
     if 'id' not in session:
@@ -74,13 +75,23 @@ def edit_employee(id):
     data = { "id" : id}
     employee.Employee.delete_employee(data)
     return 'success', 200
-    
 
+
+# Ajax route
 @app.route("/delete-employee")
 def delete_employee(id):
     if 'id' not in session:
         return redirect("/")
     data = { "id" : id}
     employee.Employee.delete_employee(data)
-    
     return "success", 200
+
+
+@app.route('/team-roster')
+def team_roster():
+    if 'id' not in session:
+        return redirect("/")
+    employees = employee.Employee.get_all_employees()
+    return render_template('team_roster.html', employees = employees )
+    
+    
