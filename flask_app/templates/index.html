@@ -20,16 +20,24 @@
                 {% endfor %}
                 {% endif %}
                 {% endwith %} -->
-                <form action="/register" method="POST">
+                <form action="/register" method="post">
                     <div class="form-group">
                     <div class="form-group">
-                        <label for="email">Email address</label>
-                        <input type="email" name="email" class="form-control" id="email" placeholder="Enter email">
+                        <label for="reg_email">Email address:</label>
+                        <input type="email" name="reg_email" class="form-control" id="reg_email" placeholder="Enter email">
                     </div>
                     <div class="form-group">
-                        <label for="password">Registration Code</label>
-                        <input type="password" name="reg_code" class="form-control" id="reg_code"
+                        <label for="reg_code">Registration Code:</label>
+                        <input type="text" name="reg_code" class="form-control" id="reg_code"
                             placeholder="Enter your registration code">
+                    </div>
+                    <div class="form-group">
+                        <label for="reg_password">Password:</label>
+                        <input type="password" class="form-control" id="reg_password" placeholder="Password" name="reg_password">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm Password:</label>
+                        <input type="password" class="form-control" id="confirm_password" placeholder="Re-type password" name="confirm_password">
                     </div>
                     <button type="submit" class="btn btn-primary" onclick="register_employee()">Register</button>
                 </form>
@@ -45,20 +53,20 @@
                 {% endwith %} -->
                 <form action="/login" method="POST">
                     <div class="form-group">
-                        <label for="email">Email address</label>
-                        <input type="email" class="form-control" id="email" name="email"
+                        <label for="login_email">Email address</label>
+                        <input type="email" class="form-control" id="login_email" name="login_email"
                             placeholder="Enter email">
                     </div>
                     <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" class="form-control" id="password" placeholder="Password" name="password">
+                        <label for="login_password">Password</label>
+                        <input type="password" class="form-control" id="login_password" placeholder="Password" name="login_password">
                     </div>
                     <button type="submit" class="btn btn-primary">Login</button>
                 </form>
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}" async></script>
 </body>
 
 </html>

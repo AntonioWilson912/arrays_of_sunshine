@@ -1,10 +1,9 @@
 from flask_app import app
 from flask_app.models import employee, role
-from flask import render_template,redirect,request,session,flash
+from flask import render_template, redirect, request, session, flash
 
 @app.route("/")
 def index():
-    
     return render_template("index.html")
 
 
@@ -68,17 +67,17 @@ def manager_dashboard():
 
 
 #Ajax route
-@app.route("/edit-employee", methods = ['POST'])
+@app.route("/employees/<int:id>/edit", methods = ['POST'])
 def edit_employee(id):
     if 'id' not in session:
         return redirect("/")
     data = { "id" : id}
-    employee.Employee.delete_employee(data)
+    employee.Employee.update_employee(data)
     return 'success', 200
 
 
 # Ajax route
-@app.route("/delete-employee")
+@app.route("/employees/<int:id>/delete")
 def delete_employee(id):
     if 'id' not in session:
         return redirect("/")
@@ -86,8 +85,16 @@ def delete_employee(id):
     employee.Employee.delete_employee(data)
     return "success", 200
 
+@app.route("/employees/<int:id>/terminate")
+def terminate_employee(id):
+    if not "id" in session:
+        return redirect("/")
 
-@app.route('/team-roster')
+    data = {"id": id}
+    employee.Employee.terminate_employee(data)
+    return redirect("/team_roster")
+
+@app.route('/team_roster')
 def team_roster():
     if 'id' not in session:
         return redirect("/")
