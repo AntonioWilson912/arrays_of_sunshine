@@ -37,27 +37,37 @@ class Employee:
     def validate_register_employee(data):
         is_valid = True 
         # Assume true and assign false if it is not valid.
-        #Email validation
-        if not EMAIL_REGEX.match(data['email']): 
+        if not Employee.get_employee_by_email(data):
+            return False
+        
+        db_data = Employee.get_employee_by_email(data)
+        
+        if (data['email']) != db_data['email']:
                 flash(u"Invalid email address!", 'email_invalid')
                 is_valid = False
-        if len(data['first_name']) < 2:
-                flash(u"First name must be more than 2 characters.", 'password_less_than_six')
-                is_valid = False
-        if len(data['last_name']) < 2:
-                flash(u"Last name must be more than 2 characters.", 'password_less_than_six')
-                is_valid = False
-        if len(data['password']) < 6:
-                flash(u"Password Must be more than 6 characters.", 'password_less_than_six')
-                is_valid = False
-        if (data['confirm_password']) != data['password']:
-                flash(u"Passwords must match.", 'confirm_password')
+        
+        if (data['reg_code']) != db_data['reg_code']:
+                flash(u"Registration Code Invalid!.", 'confirm_password')
                 is_valid = False
         return is_valid
 
     @staticmethod
     def validate_login_employee(data):
-        pa
+        is_valid = True
+        
+        if not Employee.get_employee_by_email(data):
+            return False
+        
+        db_data = Employee.get_employee_by_email(data)
+        
+        if not data:
+            flash(u"Invalid Email/Password", 'invalid_email_or_password')
+            return False
+        if not bcrypt.check_password_hash(data['password'], db_data['password'] ):
+            # if we get False after checking the password
+            flash(u"Invalid Email/Password",'invalid_password')
+            return False
+        return is_valid
 
     @classmethod
     def create_employee(cls, data):
@@ -100,6 +110,29 @@ class Employee:
                 employees.append(employee)
 
         return employees
+    
+    @classmethod
+    def get_employee_by_email(cls, data):
+        query = """
+        SELECT * From employees WHERE email = %(email)s
+        LEFT JOIN roles ON employees.role_id = roles.id;
+        """
+        results = connectToMySQL(cls.db_name).query_db(query)
+        
+        employee_data = cls(results[0])
+        role_data = {
+                    "id": employee_data["roles.id"],
+                    "name": employee_data["name"],
+                    "created_at": employee_data["roles.created_at"],
+                    "updated_at": employee_data["roles.updated_at"]
+                }
+        role_obj = role.Role(role_data)
+        employee_data.role = role_obj
+                
+        return employee_data
+        
+        
+        
 
     @classmethod
     def get_all_reg_codes(cls):
