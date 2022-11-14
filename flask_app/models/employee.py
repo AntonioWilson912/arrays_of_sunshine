@@ -34,7 +34,7 @@ class Employee:
         self.role = None
 
     @staticmethod
-    def validate_register_employee(data):
+    def validate_register_employee_login(data):
         is_valid = True 
         # Assume true and assign false if it is not valid.
         if not Employee.get_employee_by_email(data):
@@ -117,7 +117,7 @@ class Employee:
         SELECT * From employees WHERE email = %(email)s
         LEFT JOIN roles ON employees.role_id = roles.id;
         """
-        results = connectToMySQL(cls.db_name).query_db(query)
+        results = connectToMySQL(cls.db_name).query_db(query, data)
         
         employee_data = cls(results[0])
         role_data = {

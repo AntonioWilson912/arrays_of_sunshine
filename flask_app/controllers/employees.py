@@ -73,7 +73,7 @@ def edit_employee(id):
     if 'id' not in session:
         return redirect("/")
     data = { "id" : id}
-    employee.Employee.delete_employee(data)
+    employee.Employee.edit_employee(data)
     return 'success', 200
 
 
