@@ -22,7 +22,7 @@
     </nav>
     <div class="container text-center">
 
-        <h2>{{ employee_name }}</h2>
+        <h2>{{ this_employee.first_name }} {{ this_employee.last_name }}</h2>
         <div class="row">
             <div class="col"><h2>Viewing Time Card</h2></div>
         </div>
@@ -40,7 +40,7 @@
                 <p>Date</p>
             </div>
             <div class="col">
-                <p> {{ Date }} </p>
+                <p> {{ this_timecard.date }} </p>
             </div>
         </div>
         <div class="row">
@@ -48,7 +48,7 @@
                 <p>Time Worked: </p>
             </div>
             <div class="col">
-                <p> {{ time_worked }} </p>
+                <p> {{ this_timecard.hours_worked }} </p>
             </div>
         </div>
 
@@ -59,9 +59,17 @@
                     <p>Breaks:</p>
                 </div>
                 <div class="col">
+                    {% if this_timecard.breaks|length > 0 %}
+                    {% for this_break in this_timecard.breaks %}
                     <div class="row">
-                        {{ break }}
+                        {{ this_break.break_start }} - {{ this_break.break_end }}
                     </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="row">
+                        No breaks recorded for this timecard.
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

@@ -8,6 +8,7 @@ import re
 bcrypt = Bcrypt(app)
 
 EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9.+_-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$')
+PHONE_NUMBER_REGEX = re.compile(r'^\\+?\\d{1,4}?[-.\\s]?\\(?\\d{1,3}?\\)?[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,9}$')
 
 class Employee:
 
@@ -30,7 +31,7 @@ class Employee:
         self.created_at = data["created_at"]
         self.updated_at = data["updated_at"]
 
-        self.time_cards = []
+        self.timecards = []
         self.role = None
 
     @staticmethod
@@ -130,9 +131,26 @@ class Employee:
         employee_data.role = role_obj
                 
         return employee_data
+    
+    @classmethod
+    def get_employee_by_id(cls, data):
+        query = """
+        SELECT * From employees WHERE id = %(id)s
+        LEFT JOIN roles ON employees.role_id = roles.id;
+        """
+        results = connectToMySQL(cls.db_name).query_db(query, data)
         
-        
-        
+        employee_data = cls(results[0])
+        role_data = {
+                    "id": employee_data["roles.id"],
+                    "name": employee_data["name"],
+                    "created_at": employee_data["roles.created_at"],
+                    "updated_at": employee_data["roles.updated_at"]
+                }
+        role_obj = role.Role(role_data)
+        employee_data.role = role_obj
+                
+        return employee_data
 
     @classmethod
     def get_all_reg_codes(cls):
@@ -159,11 +177,20 @@ class Employee:
                 role_obj = role.Role(role_data)
                 employee.role = role_obj
         
-        return terminated_employee
+        return terminated_employees
 
     @classmethod
     def update_employee(cls, data):
         pass
+
+    @classmethod
+    def terminate_employee(cls, data):
+        query = """
+        UPDATE employees
+        SET status = "TERMINATED"
+        WHERE id= %(id)s;
+        """
+        return connectToMySQL(cls.db_name).query_db(query, data)
 
     @classmethod
     def delete_employee(cls, data):

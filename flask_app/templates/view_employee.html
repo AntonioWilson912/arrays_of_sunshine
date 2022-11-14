@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <title>{{ employee_name }} - Arrays of Sunshine</title>
+    <title>{{ this_employee.first_name }} {{ this_employee.last_name }} - Arrays of Sunshine</title>
 </head>
 
 <body>
@@ -29,30 +29,30 @@
         </div>
         <div class="row">
             <div class="col">
-                {{ employee_name}}
+                {{ this_employee.first_name }} {{ this_employee.last_name }}
             </div>
             
         </div>
         <div class="row">
             <div class="col">
-                {{ employee_title }}
+                {{ this_employee.role.name }}
             </div>
             
         </div>
         <div class="row">
             <div class="col">
-                {{ email }}
+                {{ this_employee.email }}
             </div>
             <div class="col">
-                {{ phone_number }}
+                {{ this_employee.phone_number }}
             </div>
             <div class="col">
-                {{ birthday }}
+                {{ this_employee.birthday }}
             </div>
         </div>
         <div class="row">
             <div class="col">
-                <p>Shifts Worked: {{ hour_worked }} </p>
+                <p>Shifts Worked: {{ this_employee.timecards|length }} </p>
             </div>
             <div class="col">
                 <p>Hours Worked (YTD): {{ hour_ytd }}</p>
@@ -60,21 +60,21 @@
         </div>
         <div class="row">
             <div class="col">
-                <p>Pin Code: {{ pin_code }}</p>
+                <p>Pin Code: {{ this_employee.pin_code }}</p>
             </div>
             <div class="col">
-                <p>Pay Rate: ${{ pay_rate }}</p>
+                <p>Pay Rate: ${{ this_employee.pay_rate }}</p>
             </div>
         </div>
         <div class="row">
             <div class="col">
-                <a class="btn btn-success" href="#" role="button">Edit Info</a>
+                <a class="btn btn-success" href="/employees/{{ this_employee.id }}/edit" role="button">Edit Info</a>
             </div>
             <div class="col">
-                <a class="btn btn-warning" href="#" role="button">Terminate</a>
+                <a class="btn btn-warning" href="/employees/{{ this_employee.id }}/terminate" role="button">Terminate</a>
             </div>
             <div class="col">
-                <a class="btn btn-danger" href="#" role="button">Delete</a>
+                <a class="btn btn-danger" href="/employees/{{ this_employee.id }}/delete" role="button">Delete</a>
             </div>
         </div>
     </div>
