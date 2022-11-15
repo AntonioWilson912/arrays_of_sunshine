@@ -20,7 +20,7 @@
                 {% endfor %}
                 {% endif %}
                 {% endwith %} -->
-                <form action="/register" method="post">
+                <form action="/register" id="registerEmployeeForm" method="post">
                     <div class="form-group">
                     <div class="form-group">
                         <label for="reg_email">Email address:</label>
@@ -51,7 +51,7 @@
                 {% endfor %}
                 {% endif %}
                 {% endwith %} -->
-                <form action="/login" method="POST">
+                <form action="/login" id="loginEmployeeForm" method="POST">
                     <div class="form-group">
                         <label for="login_email">Email address</label>
                         <input type="email" class="form-control" id="login_email" name="login_email"
@@ -61,12 +61,13 @@
                         <label for="login_password">Password</label>
                         <input type="password" class="form-control" id="login_password" placeholder="Password" name="login_password">
                     </div>
+                    <a href="/reset">Forgot your password? Reset it here!</a>
                     <button type="submit" class="btn btn-primary">Login</button>
                 </form>
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}" async></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/employee_script.js') }}" async></script>
 </body>
 
 </html>

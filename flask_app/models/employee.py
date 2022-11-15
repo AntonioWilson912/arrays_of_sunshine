@@ -8,7 +8,6 @@ import re
 bcrypt = Bcrypt(app)
 
 EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9.+_-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$')
-PHONE_NUMBER_REGEX = re.compile(r'^\\+?\\d{1,4}?[-.\\s]?\\(?\\d{1,3}?\\)?[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,9}$')
 
 class Employee:
 
@@ -33,6 +32,27 @@ class Employee:
 
         self.timecards = []
         self.role = None
+
+    @staticmethod
+    def validate_new_employee(data):
+        is_valid = True
+
+        if Employee.get_employee_by_email(data):
+            flash("Email is already in use!", "new_employee")
+            is_valid = False
+        if len(data["first_name"]) < 3:
+            flash("First name must be at least 3 characters.", "new_employee")
+            is_valid = False
+        if len(data["last_name"]) < 3:
+            flash("Last name must be at least 3 characters.", "new_employee")
+            is_valid = False
+        if not EMAIL_REGEX.match(data["email"]):
+            flash("Invalid email format: someone@example.com", "new_employee")
+        if len(data["phone_number"]) > 0 and re.findall(r'[\d]{3}-[\d]{3}-[\d]{4}', data["phone_number"]):
+            flash("Invalid phone number format: 000-000-0000", "new_employee")
+            is_valid = False
+
+        return is_valid
 
     @staticmethod
     def validate_register_employee(data):
@@ -68,6 +88,15 @@ class Employee:
             # if we get False after checking the password
             flash(u"Invalid Email/Password",'invalid_password')
             return False
+        return is_valid
+
+    @staticmethod
+    def validate_reset_password(data):
+        is_valid = True
+
+        if not Employee.get_employee_by_email(data):
+            pass
+
         return is_valid
 
     @classmethod
@@ -115,11 +144,14 @@ class Employee:
     @classmethod
     def get_employee_by_email(cls, data):
         query = """
-        SELECT * From employees WHERE email = %(email)s
-        LEFT JOIN roles ON employees.role_id = roles.id;
+        SELECT * FROM employees
+        LEFT JOIN roles ON employees.role_id = roles.id
+        WHERE email = %(email)s;
         """
         results = connectToMySQL(cls.db_name).query_db(query, data)
         
+        if len(results) == 0:
+            return None
         employee_data = cls(results[0])
         role_data = {
                     "id": employee_data["roles.id"],
@@ -135,26 +167,26 @@ class Employee:
     @classmethod
     def get_employee_by_id(cls, data):
         query = """
-        SELECT * From employees WHERE id = %(id)s
-        LEFT JOIN roles ON employees.role_id = roles.id;
+        SELECT * FROM employees
+        LEFT JOIN roles ON employees.role_id = roles.id
+        WHERE employees.id = %(id)s;
         """
         results = connectToMySQL(cls.db_name).query_db(query, data)
-        
-        employee_data = cls(results[0])
-        role_data = {
-                    "id": employee_data["roles.id"],
-                    "name": employee_data["name"],
-                    "created_at": employee_data["roles.created_at"],
-                    "updated_at": employee_data["roles.updated_at"]
-                }
-        role_obj = role.Role(role_data)
-        employee_data.role = role_obj
-                
-        return employee_data
 
-    @classmethod
-    def get_all_reg_codes(cls):
-        pass
+        print(results)
+        
+        employee_data = results[0]
+        employee_obj = cls(employee_data)
+        role_data = {
+            "id": employee_data["roles.id"],
+            "name": employee_data["name"],
+            "created_at": employee_data["roles.created_at"],
+            "updated_at": employee_data["roles.updated_at"]
+        }
+        role_obj = role.Role(role_data)
+        employee_obj.role = role_obj
+                
+        return employee_obj
 
     @classmethod
     def get_all_terminated_employees(cls):
@@ -181,7 +213,24 @@ class Employee:
 
     @classmethod
     def update_employee(cls, data):
-        pass
+        query = """
+        UPDATE employees SET
+        first_name = %(first_name)s,
+        last_name = %(last_name)s,
+        email = %(email)s,
+        password = %(password)s,
+        phone_number = %(phone_number)s,
+        birthdate = %(birthdate)s,
+        pay_rate = %(pay_rate)s,
+        avatar_url = %(avatar_url)s,
+        status = %(status)s,
+        is_manager = %(is_manager)s,
+        pin_code = %(pin_code)s,
+        reg_code = %(reg_code)s,
+        role_id = %(role_id)s
+        WHERE id = %(id)s;
+        """
+        return connectToMySQL(cls.db_name).query_db(query, data)
 
     @classmethod
     def terminate_employee(cls, data):
