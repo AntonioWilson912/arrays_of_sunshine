@@ -28,8 +28,16 @@ class TimeCard:
             flash("Date must be present.", "timecard")
 
         # Test whether the input timecard data overlaps with an existing timecard
-
-
+        all_timecards_for_date_employee = get_timecards_by_date(data)
+        for this_timecard in all_timecards_for_date_employee:
+            if this_timecard.time_in > data["time_in"] and this_timecard.time_in < data["time_out"]:
+                flash("Time in cannot overlap a time out of another timecard.", "timecard")
+                is_valid = False
+                break
+            if this_timecard.timeout < data["time_out"] and this_timecard.time_out > data["time_in"]:
+                flash("Time out cannot overlap a time in of another timecard.", "timecard")
+                is_valid = False
+                break
 
         if len(data["time_in"]) == 0:
             flash("Time in must be present.", "timecard")
@@ -41,6 +49,23 @@ class TimeCard:
             flash("Time out must be present.", "timecard")
 
         return is_valid
+
+    # Assume the times are in the format XX:XX (24-hour time format) and that time_two is greater than time_one
+    @staticmethod
+    def delta_time(time_one, time_two):
+        time_one_hours = int(time_one[:2])
+        time_one_minutes = int(time_one[3:])
+        time_two_hours = int(time_two[:2])
+        time_two_minutes = int(time_two[3:])
+
+        delta_hours = time_two_hours - time_one_hours
+        delta_minutes = time_two_minutes - time_two_minutes
+
+        if delta_minutes < 0:
+            delta_minutes = 60 + delta_minutes
+            delta_hours -= 1
+
+        return [delta_hours, delta_minutes]
 
     @classmethod
     def create_time_card(cls, data):
@@ -101,6 +126,40 @@ class TimeCard:
                 timecards.append(timecard_obj)
         
         return timecards
+
+    @classmethod
+    def get_timecards_by_date(cls, data):
+        query = """
+        SELECT * FROM timecards
+        JOIN employees ON employees.id = timecards.employee_id
+        LEFT JOIN breaks ON breaks.timecard_id = timecards.id
+        WHERE employees.id = %(employee_id)s AND date = %(date)s;
+        """
+        results = connectToMySQL(cls.db_name).query_db(query, data)
+        all_timecards = []
+        if len(results) > 0:
+            for this_timecard_data in all_timecards:
+                this_timecard = cls(this_timecard_data)
+                employee_obj = employee.Employee({
+                    "id": results[0]["employees.id"],
+                    "first_name": results[0]["first_name"],
+                    "last_name": results[0]["last_name"],
+                    "email": results[0]["email"],
+                    "password": results[0]["password"],
+                    "phone_number": results[0]["phone_number"],
+                    "birthdate": results[0]["birthdate"],
+                    "pay_rate": results[0]["pay_rate"],
+                    "avatar_url": results[0]["avatar_url"],
+                    "status": results[0]["status"],
+                    "is_manager": results[0]["is_manager"],
+                    "pin_code": results[0]["pin_code"],
+                    "reg_code": results[0]["reg_code"],
+                    "created_at": results[0]["employees.created_at"],
+                    "updated_at": results[0]["employees.updated_at"]
+                })
+                this_timecard.employee = employee_obj
+                all_timecards.append(this_timecard)
+        return all_timecards
 
     @classmethod
     def get_timecard(cls, data):
