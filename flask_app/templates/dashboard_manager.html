@@ -16,18 +16,19 @@
         </div>
         <div>
             <a href="/dashboard">Dashboard</a> |
-            <a href="/profile">Your Profile</a> |
+            <a href="/team/{{ logged_in_employee.id }}">Your Profile</a> |
             <a href="/logout">Log Out</a>
         </div>
     </nav>
     <div class="container text-center">
-        <h2>Your Week in Review {{ period }}</h2>
+        <h2>Your Week in Review</h2>
+        <p>({{ this_week }})</p>
         <div class="row">
             <div class="col">
-                <h2>Est. Total Hours: {{ total_hour}} hrs.</h2>
+                <h2>Est. Total Hours: {{ total_hours }} hrs.</h2>
             </div>
             <div class="col">
-                <h2>Est. Total Wages: ${{ total_wage }}</h2>
+                <h2>Est. Total Wages: ${{ total_wages }}</h2>
             </div>
         </div>
         <div class="row">
@@ -36,21 +37,29 @@
             </div>
             <div class="col">
                 <ul class="list-group">
+                    {% if worked_employees|length > 0 %}
+                    {% for this_employee in worked_employees %}
                     <li class="list-group-item">
-                        {{ employee_name }}
+                        <a href="/team/{{this_employee.id }}">{{ this_employee.first_name }} {{ this_employee.last_name }}</a>
                     </li>
+                    {% endfor %}
+                    {% else %}
+                    <li class="list-group-item">
+                        No one has worked this week.
+                    </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
         <div class="row">
             <div class="col">
-                <a class="btn btn-success" href="#" role="button">Generate Payroll Report</a>
+                <a class="btn btn-success" href="/generate_payroll" role="button">Generate Payroll Report</a>
             </div>
             <div class="col">
-                <a class="btn btn-primary" href="#" role="button">Access Timesheets</a>
+                <a class="btn btn-primary" href="/timesheets" role="button">Access Timesheets</a>
             </div>
             <div class="col">
-                <a class="btn btn-danger" href="#" role="button">Team Roster</a>
+                <a class="btn btn-danger" href="/team_roster" role="button">Team Roster</a>
             </div>
         </div>
 

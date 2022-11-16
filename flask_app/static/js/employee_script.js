@@ -4,7 +4,7 @@ var createEmployeeForm = document.getElementById("createEmployeeForm");
 var updateEmployeeForm = document.getElementById("updateEmployeeForm");
 
 registerEmployeeForm.onsubmit = function(e) {
-    e.preventDefault();
+    // e.preventDefault();
     var form = new FormData(registerEmployeeForm);
     fetch("http://localhost:5000/register_employee", { "method": "POST", body: form })
         .then(res => res.json())
@@ -14,7 +14,7 @@ registerEmployeeForm.onsubmit = function(e) {
 }
 
 loginEmployeeForm.onsubmit = function(e) {
-    e.preventDefault();
+    // e.preventDefault();
     var form = new FormData(loginEmployeeForm);
     fetch("http://localhost:5000/login_employee", { "method": "POST", body: form })
         .then(res => res.json())
@@ -24,7 +24,7 @@ loginEmployeeForm.onsubmit = function(e) {
 }
 
 createEmployeeForm.onsubmit = function(e) {
-    e.preventDefault();
+    // e.preventDefault();
     var form = new FormData(createEmployeeForm);
     fetch("http://localhost:5000/create_employee", { "method": "POST", body: form })
         .then(res => res.json())

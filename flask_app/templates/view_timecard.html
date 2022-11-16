@@ -16,7 +16,7 @@
         </div>
         <div>
             <a href="/dashboard">Dashboard</a> |
-            <a href="/profile">Your Profile</a> |
+            <a href="/team/{{ logged_in_employee.id }}">Your Profile</a> |
             <a href="/logout">Log Out</a>
         </div>
     </nav>
@@ -28,10 +28,10 @@
         </div>
         <div class="row">
             <div class="col">
-                <div class="col"><a href="">Pencil</a></div>
+                <div class="col"><a href="/team/{{ this_employee.id }}/timecards/{{ this_timecard.id }}/edit">Pencil</a></div>
             </div>
             <div class="col">
-                <div class="col"><a href="">Delete</a></div>
+                <div class="col"><a href="/team/{{ this_employee.id }}/timecards/{{ this_timecard.id }}/delete">Delete</a></div>
             </div>
         </div>
 
@@ -48,7 +48,7 @@
                 <p>Time Worked: </p>
             </div>
             <div class="col">
-                <p> {{ this_timecard.hours_worked }} </p>
+                <p>{{ this_timecard.time_in }} - {{ this_timecard.time_out }}</p>
             </div>
         </div>
 

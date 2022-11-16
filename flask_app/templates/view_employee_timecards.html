@@ -16,37 +16,22 @@
         </div>
         <div>
             <a href="/dashboard">Dashboard</a> |
-            <a href="/team/{{ this_employee.id }}">Your Profile</a> |
+            <a href="/team/{{ logged_in_employee.id }}">Your Profile</a> |
             <a href="/logout">Log Out</a>
         </div>
     </nav>
     <div class="container text-center">
 
-        <h2>Timesheets</h2>
+        <h2>{{ this_employee.first_name }} {{ this_employee.last_name }}'s Time Cards</h2>
         <div class="row">
             <div class="col">
-                <p>Week of: {{ this_week }}</p>
+                <p>Shifts Worked: {{ this_employee.timecards|length }}</p>
             </div>
             <div class="col">
-                <p>Employee:</p>
-                <select name="employee_id" id="employee_id">
-                    <option value="all">All</option>
-                    {% for current_employee in all_employees %}
-                        <option value="{{ current_employee.id }}">{{ current_employee.first_name }} {{ current_employee.last_name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-        </div>
-        {% for current_employee in all_employees %}
-        <div class="row">
-            <div class="col">
-                <p>{{ current_employee.first_name }} {{ current_employee.last_name }} - {{ current_employee.timecards|length }} Time Cards </p>
+                <p>Est. Total Hours: {{ this_employee.total_hours }}</p>
             </div>
             <div class="col">
-                <p>Est. Total Hours: {{ current_employee.total_hours }}</p>
-            </div>
-            <div class="col">
-                <p>Est. Total Wages: ${{ current_employee.total_wages }}</p>
+                <p>Est. Total Wages: ${{ this_employee.total_wages }}</p>
             </div>
         </div>
         <div class="row">
@@ -62,28 +47,25 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for this_timecard in current_employee.timecards %}
+                        {% if this_employee.timecards|length > 0 %}
+                        {% for this_timecard in this_employee.timecards %}
                         <tr>
                             <td> {{ this_timecard.date }}</td>
                             <td> {{ this_timecard.time_in }}</td>
                             <td> {{ this_timecard.time_out }}</td>
                             <td> {{ this_timecard.hours_worked }}</td>
-                            <td> <a href="/team/{{ current_employee.id }}/timecards/{{ this_timecard.id }}">View</a> | <a href="/team/{{ current_employee.id }}/timecards/{{ this_timecard.id }}/edit">Edit</a> | <a href="/timecards/{{ this_timecard.id }}/delete">Delete</a></td>
+                            <td> <a href="/team/{{ this_employee.id }}/timecards/{{ this_timecard.id }}">View</a>
                         </tr>
                         {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="5">{{ this_employee.first_name }} has not worked any shifts whatsoever.</td>
+                        </tr>
+                        {% endif %}
                     </tbody>
                 </table>
             </div>
         </div>
-        <div class="row">
-            <div class="col">
-                <a class="btn btn-primary" href="/team/{{ current_employee.id }}/timecards/new" role="button">Add Time Card</a>
-            </div>
-            <div class="col">
-                <a href="/team/{{ current_employee.id }}/timecards" class="btn btn-success">View All Time Cards</a>
-            </div>
-        </div>
-        {% endfor %}
     </div>
 </body>
 

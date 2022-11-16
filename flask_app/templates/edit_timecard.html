@@ -16,22 +16,22 @@
         </div>
         <div>
             <a href="/dashboard">Dashboard</a> |
-            <a href="/profile">Your Profile</a> |
+            <a href="/team/{{ logged_in_employee.id }}">Your Profile</a> |
             <a href="/logout">Log Out</a>
         </div>
     </nav>
     <div class="container text-center">
 
-        <h2>{{ employee_name }}</h2>
+        <h2>{{ this_employee.first_name }} {{ this_employee.last_name }}</h2>
         <h2>Update Time Card</h2>
-        <form action="/new_timecard">
+        <form action="/team/{{ this_employee.id }}/timecards/{{ this_timecard.id }}/update" method="post">
             <div class="form-group">
                 <div class="row">
                     <div class="col">
                         <label class="control-label" for="date">Date</label>
                     </div>
                     <div class="col">
-                        <input class="form-control" id="date" name="date" placeholder="MM/DD/YYYY" type="date">
+                        <input class="form-control" id="date" name="date" placeholder="MM/DD/YYYY" type="date" value="{{ this_timecard.date }}">
                     </div>
                 </div>
 
@@ -44,10 +44,10 @@
                     <div class="col">
                         <div class="row">
                             <div class="col">
-                                <input class="form-control" id="date" name="date" type="time">
+                                <input class="form-control" id="date" name="time_in" type="time" value="{{ this_timecard.time_in }}">
                             </div>
                             <div class="col">
-                                <input class="form-control" id="date" name="date" type="time">
+                                <input class="form-control" id="date" name="time_out" type="time" value="{{ this_timecard.time_out }}">
                             </div>
                         </div>
                     </div>

@@ -16,7 +16,7 @@
         </div>
         <div>
             <a href="/dashboard">Dashboard</a> |
-            <a href="/profile">Your Profile</a> |
+            <a href="/team/{{ current_employee.id }}">Your Profile</a> |
             <a href="/logout">Log Out</a>
         </div>
     </nav>
@@ -30,11 +30,11 @@
                 </div>
                 <div class="col form-group">
                     <input type="radio" name="sortByName" id="first_name" value="first_name">
-                    <label for="first_name">First Name:</label>
+                    <label for="first_name">First Name</label>
                 </div>
                 <div class="col form-group">
-                    <input type="text" name="sortByName" id="last_name" value="last_name">
-                    <label for="last_name">Last Name:</label>
+                    <input type="radio" name="sortByName" id="last_name" value="last_name">
+                    <label for="last_name">Last Name</label>
                 </div>
                 <div class="col">
                     <label for="show_termianted">Show Terminated:</label>
@@ -43,6 +43,7 @@
                 <div class="col">
                     <label for="role">Role:</label>
                     <select name="role" id="role">
+                        <option value="all">All</option>
                         {% for this_role in all_roles %}
                             <option value="{{ this_role.id }}">{{ this_role.name }}</option>
                         {% endfor %}
@@ -65,20 +66,26 @@
                     <tbody>
                         {% if all_employees|length > 0 %}
                         {% for this_employee in all_employees %}
-                        <td> {{ this_employee.first_name }} {{ this_employee.last_name }}</td>
-                        <td> {{ this_employee.role.name }}</td>
-                        <td> {{ this_employee.email }}</td>
-                        <td>
-                            {% if this_employee.phone_number|length > 0 %}
-                            {{ this_employee.phone_number}}
-                            {% else %}
-                            <p>No phone number recorded.</p>
-                            {% endif %}
-                        </td>
-                        <td> <a href="/team/{{ this_employee.id }}">View</a>
-                            {% if current_employee.is_manager == 1 %}| <a href="/team/{{ this_employee.id }}/edit">Edit</a>{% endif %}
-                        </td>
+                        <tr>
+                            <td> {{ this_employee.first_name }} {{ this_employee.last_name }}</td>
+                            <td> {{ this_employee.role.name }}</td>
+                            <td> {{ this_employee.email }}</td>
+                            <td>
+                                {% if this_employee.phone_number|length > 0 %}
+                                {{ this_employee.phone_number }}
+                                {% else %}
+                                <p>No phone number recorded.</p>
+                                {% endif %}
+                            </td>
+                            <td> <a href="/team/{{ this_employee.id }}">View</a>
+                                {% if current_employee.is_manager == 1 %}| <a href="/team/{{ this_employee.id }}/edit">Edit</a>{% endif %}
+                            </td>
+                        </tr>
                         {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="5">No employees here.</td>
+                        </tr>
                         {% endif %}
                     </tbody>
                 </table>

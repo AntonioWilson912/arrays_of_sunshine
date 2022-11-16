@@ -81,10 +81,10 @@ class Employee:
         
         db_data = Employee.get_employee_by_email(data)
         
-        if not data:
+        if not db_data:
             flash(u"Invalid Email/Password", 'invalid_email_or_password')
             return False
-        if not bcrypt.check_password_hash(data['password'], db_data['password'] ):
+        if not bcrypt.check_password_hash(db_data.password, data['password']):
             # if we get False after checking the password
             flash(u"Invalid Email/Password",'invalid_password')
             return False
@@ -96,6 +96,12 @@ class Employee:
 
         if not Employee.get_employee_by_email(data):
             pass
+
+        return is_valid
+
+    @staticmethod
+    def validate_update_employee(data):
+        is_valid = True
 
         return is_valid
 
@@ -152,7 +158,8 @@ class Employee:
         
         if len(results) == 0:
             return None
-        employee_data = cls(results[0])
+        employee_data = results[0]
+        employee_obj = cls(employee_data)
         role_data = {
                     "id": employee_data["roles.id"],
                     "name": employee_data["name"],
@@ -160,9 +167,9 @@ class Employee:
                     "updated_at": employee_data["roles.updated_at"]
                 }
         role_obj = role.Role(role_data)
-        employee_data.role = role_obj
+        employee_obj.role = role_obj
                 
-        return employee_data
+        return employee_obj
     
     @classmethod
     def get_employee_by_id(cls, data):
@@ -172,8 +179,6 @@ class Employee:
         WHERE employees.id = %(id)s;
         """
         results = connectToMySQL(cls.db_name).query_db(query, data)
-
-        print(results)
         
         employee_data = results[0]
         employee_obj = cls(employee_data)

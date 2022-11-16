@@ -1,7 +1,8 @@
 from flask_app import app
-from flask_app.models import employee, role
+from flask_app.models import employee, role, timecard
 from flask import render_template, redirect, request, session, flash
 from flask_bcrypt import Bcrypt
+from datetime import datetime, timedelta
 import random
 
 bcrypt = Bcrypt(app)
@@ -13,7 +14,7 @@ def index():
 @app.route("/generate_admin")
 def gen_admin():
 
-    admin = employee.Employee.get_employee_by_id({"id": 1})
+    admin = employee.Employee.get_employee_by_id({"id": 2})
     pw_hash = bcrypt.generate_password_hash("password1!")
     data = {
         "id": admin.id,
@@ -32,7 +33,6 @@ def gen_admin():
         "role_id": admin.role.id
     }
     employee.Employee.update_employee(data)
-
 
     return redirect("/")
 
@@ -93,19 +93,23 @@ def create_employee():
 
         employee.Employee.register_employee(data)
 
-        return redirect('/manager_dashboard')
+        return redirect('/dashboard')
     
     return request.referrer
 
 
 @app.route("/login_employee", methods = ['POST'])
 def login_employee():
-    if employee.Employee.validate_login_employee(request.form):
-        login_employee = employee.Employee.get_employee_by_email(request.form)
+    data = {
+        "email": request.form["login_email"],
+        "password": request.form["login_password"]
+    }
+    if employee.Employee.validate_login_employee(data):
+        login_employee = employee.Employee.get_employee_by_email(data)
         session['id'] = login_employee.id
-        return render_template('dashboard_employee.html', employee = login_employee)
-    
-    else: 
+        return redirect("/dashboard")
+    else:
+        return redirect("/")
         return request.referrer
 
 @app.route("/reset")
@@ -116,30 +120,141 @@ def reset_password_page():
 def reset_password():
     return redirect("/")
 
-@app.route("/employee_dashboard")
-def employee_dashboard():
-    if 'id' not in session:
+@app.route("/dashboard")
+def dashboard():
+    if not "id" in session:
         return redirect("/")
-    data = { "id" : session['id']}
-    this_employee = employee.Employee.get_employee_by_id(data)
-    return render_template('dashboard_employee.html', this_employee=this_employee)
 
-@app.route("/manager_dashboard")
-def manager_dashboard():
-    if 'id' not in session:
+    today = datetime.now().date()
+
+    week_start = today + timedelta(days = -today.weekday() - 1)
+    week_end = today + timedelta(days = 7 - today.weekday()- 2)
+
+    data = {
+        "week_start": week_start,
+        "week_end": week_end
+    }
+
+    this_week = f"{week_start} - {week_end}"
+
+    all_employees_timecards = timecard.TimeCard.get_timecards_by_week(data)
+    worked_employees = []
+    total_hours = 0.0
+    total_wages = 0.0
+
+    for current_employee in all_employees_timecards:
+        current_employee.total_hours = 0.0
+        current_employee.total_wages = 0.0
+        if len(current_employee.timecards) > 0:
+            worked_employees.append(current_employee)
+            current_employee.total_hours = 0.0
+            for current_timecard in current_employee.timecards:
+                total_hours += current_timecard.hours_worked
+                current_employee.total_hours += current_timecard.hours_worked
+            current_employee.total_wages = float(current_employee.pay_rate) * current_employee.total_hours
+            total_wages += current_employee.total_wages
+
+    total_wages = "{:.2f}".format(total_wages)
+
+    #print(all_employees_timecards)
+    this_employee = employee.Employee.get_employee_by_id({ "id": session["id"]})
+    for current_employee in all_employees_timecards:
+        if current_employee.id == this_employee.id:
+            this_employee.total_hours = current_employee.total_hours
+            this_employee.total_wages = "{:.2f}".format(current_employee.total_wages)
+            break
+
+    if this_employee.is_manager == 1:
+        return render_template("dashboard_manager.html", logged_in_employee = this_employee, worked_employees = worked_employees, this_week = this_week, total_hours = total_hours, total_wages = total_wages)
+    else:
+        return render_template("dashboard_employee.html", logged_in_employee = this_employee, worked_employees = worked_employees, this_week = this_week)
+
+@app.route("/team/<int:id>")
+def view_employee(id):
+    if not "id" in session:
         return redirect("/")
-    
-    employees = employee.Employee.get_all_employees()
-    return render_template('dashboard_manager.html', employees = employees )
 
+    this_employee = timecard.TimeCard.get_all_time_cards_for_user({"employee_id": id })
+    logged_in_employee = employee.Employee.get_employee_by_id({ "id": session["id"] })
+    if len(this_employee.phone_number) == 10:
+        this_employee.phone_number = f"{this_employee.phone_number[:3]}-{this_employee.phone_number[3:6]}-{this_employee.phone_number[6:]}"
+
+    this_employee.ytd_hours = 0.0
+    for this_timecard in this_employee.timecards:
+        # print(this_timecard.date.strftime("%Y"))
+        # print(datetime.today().year)
+        # print(this_timecard.hours_worked)
+        if int(this_timecard.date.strftime("%Y")) == datetime.today().year:
+            this_employee.ytd_hours += this_timecard.hours_worked
+
+    return render_template("view_employee.html", this_employee=this_employee, logged_in_employee=logged_in_employee)
+
+@app.route("/team/<int:id>/edit")
+def edit_employee(id):
+    if not "id" in session:
+        return redirect("/")
+
+    this_employee = employee.Employee.get_employee_by_id({"id": id })
+    logged_in_employee = employee.Employee.get_employee_by_id({ "id": session["id"] })
+    all_roles = role.Role.get_all_roles()
+    if len(this_employee.phone_number) == 10:
+        this_employee.phone_number = f"{this_employee.phone_number[:3]}-{this_employee.phone_number[3:6]}-{this_employee.phone_number[6:]}"
+
+    if logged_in_employee.is_manager == 1:
+        return render_template("edit_employee_manager_view.html", this_employee=this_employee, logged_in_employee=logged_in_employee, all_roles=all_roles)
+
+    return render_template("edit_employee_employee_view.html", this_employee=this_employee, logged_in_employee=logged_in_employee, all_roles=all_roles)
 
 #Ajax route
-@app.route("/team/<int:id>/edit", methods = ['POST'])
-def edit_employee(id):
+@app.route("/team/<int:id>/update", methods = ['POST'])
+def update_employee(id):
     if 'id' not in session:
         return redirect("/")
-    data = { "id" : id}
-    employee.Employee.update_employee(data)
+
+    logged_in_employee = employee.Employee.get_employee_by_id({ "id": session["id"] })
+    if logged_in_employee.is_manager == 1:
+        data = {
+            "id": id,
+            "first_name": request.form["first_name"],
+            "last_name": request.form["last_name"],
+            "email": request.form["email"],
+            "phone_number": request.form["phone_number"],
+            "role_id": request.form["role_id"],
+            "pay_rate": request.form["pay_rate"],
+            "pin_code": request.form["pin_code"],
+            "avatar_url": request.form["avatar_url"],
+            "birthdate": request.form["birthdate"],
+            "is_manager": request.form["is_manager"]
+        }
+    else:
+        data = {
+            "id": id,
+            "first_name": request.form["first_name"],
+            "last_name": request.form["last_name"],
+            "email": request.form["email"],
+            "phone_number": request.form["phone_number"],
+            "password": request.form["password"],
+            "confirm_password": request.form["confirm_password"],
+            "avatar_url": request.form["avatar_url"],
+            "birthdate": request.form["birthdate"]
+        }
+
+    if employee.Employee.validate_update_employee(data):
+        this_employee = employee.Employee.get_employee_by_id(data)
+        data["phone_number"] = data["phone_number"].replace("-", "") if "phone_number" in data else this_employee.phone_number
+        data["role_id"] = data["role_id"] if "role_id" in data else this_employee.role.id
+        data["pay_rate"] = data["pay_rate"] if "pay_rate" in data else this_employee.pay_rate
+        data["pin_code"] = data["pin_code"] if "pin_code" in data else this_employee.pin_code
+        if "password" in data and len(data["password"]) > 7:
+            data["password"] = bcrypt.generate_password_hash(data["password"])
+        else:
+            data["password"] = this_employee.password
+        data["status"] = this_employee.status
+        data["reg_code"] = this_employee.reg_code
+        data["is_manager"] = data["is_manager"] if "is_manager" in data else this_employee.is_manager
+        employee.Employee.update_employee(data)
+        return redirect(f"/team/{id}")
+    return redirect(f"/team/id/edit")
     return 'success', 200
 
 
@@ -166,8 +281,14 @@ def team_roster():
     if 'id' not in session:
         return redirect("/")
     employees = employee.Employee.get_all_employees()
+    current_employee = employee.Employee.get_employee_by_id({ "id": session["id"] })
     roles = role.Role.get_all_roles()
-    return render_template('team_roster.html', all_employees = employees, all_roles = roles)
+
+    for this_employee in employees:
+        if len(this_employee.phone_number) == 10:
+            this_employee.phone_number = f"{this_employee.phone_number[:3]}-{this_employee.phone_number[3:6]}-{this_employee.phone_number[6:]}"
+    
+    return render_template('team_roster.html', all_employees = employees, current_employee = current_employee, all_roles = roles)
     
 @app.route("/logout")
 def logout():

@@ -8,7 +8,7 @@
     <title>Timesheet Report</title>
 </head>
 <body>
-    <h4>Payroll Information for {{ period }}</h4>
+    <h4>Payroll Information for {{ this_week }}</h4>
     <table class="table">
         <thead>
             <tr>
@@ -23,15 +23,18 @@
             </tr>
         </thead>
         <tbody>
-            <td> {{ employee_name }}</td>
-            <td> {{ hours_worked }}</td>
-            <td> {{ ot_hours }}</td>
-            <td> {{ pay_rate }}</td>
-            <td> {{ ot_rate }}</td>
-            <td> {{ regular_pay }}</td>
-            <td> {{ ot_pay }}</td>
-            <td> {{ total_pay }}</td>
-            
+            {% for this_employee in all_employees %}
+            <tr>
+                <td> {{ this_employee.first_name }} {{ this_employee.last_name }}</td>
+                <td> {{ this_employee.total_hours }}</td>
+                <td> {{ this_employee.ot_hours }}</td>
+                <td> {{ this_employee.pay_rate }}</td>
+                <td> {{ this_employee.ot_rate }}</td>
+                <td> {{ this_employee.regular_wages }}</td>
+                <td> {{ this_employee.ot_wages }}</td>
+                <td> {{ this_employee.total_wages }}</td>
+            </tr>
+            {% endfor %}
         </tbody>
     </table>
 </body>
