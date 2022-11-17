@@ -180,7 +180,7 @@ def create_employee():
         new_employee_id = employee.Employee.create_employee(data)
         new_employee = employee.Employee.get_employee_by_id({"id": new_employee_id })
 
-        # Send an email to the specified email address with the registration code. Currently not working
+        # Send an email to the specified email address with the registration code.
         send_email(new_employee)
 
         return redirect('/team')
