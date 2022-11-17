@@ -48,8 +48,11 @@ class Employee:
             is_valid = False
         if not EMAIL_REGEX.match(data["email"]):
             flash("Invalid email format: someone@example.com", "new_employee")
-        if len(data["phone_number"]) > 0 and re.findall(r'[\d]{3}-[\d]{3}-[\d]{4}', data["phone_number"]):
+        if len(data["phone_number"]) > 0 and not re.match(r'[\d]{3}-[\d]{3}-[\d]{4}', data["phone_number"]):
             flash("Invalid phone number format: 000-000-0000", "new_employee")
+            is_valid = False
+        if int(data["role_id"]) == -1:
+            flash("Must choose a valid role.", "new_employee")
             is_valid = False
 
         return is_valid
@@ -59,16 +62,29 @@ class Employee:
         is_valid = True 
         # Assume true and assign false if it is not valid.
         if not Employee.get_employee_by_email(data):
-            return False
-        
-        db_data = Employee.get_employee_by_email(data)
-        
-        if (data['email']) != db_data['email']:
-                flash(u"Invalid email address!", 'email_invalid')
+            flash("Invalid email address!", "register")
+            is_valid = False
+        else:
+            employee_data = Employee.get_employee_by_email(data)
+
+            if len(employee_data.password) > 0:
+                flash("Email has already been registered!", "register")
+                return False
+            
+            if (data['reg_code']) != employee_data.reg_code:
+                flash("Invalid registration code!", 'register')
                 is_valid = False
-        
-        if (data['reg_code']) != db_data['reg_code']:
-                flash(u"Registration Code Invalid!.", 'confirm_password')
+            if data["password"] != data["confirm_password"]:
+                flash("Passwords must match.", "register")
+                is_valid = False
+            if len(data["password"]) < 8:
+                flash("Password must be at least 8 characters.", "register")
+                is_valid = False
+            if not re.findall("[\d]", data["password"]):
+                flash("Password must contain at least 1 digit.", "register")
+                is_valid = False
+            if not re.findall("[^\w\s]", data["password"]):
+                flash("Password must contain at least 1 special character.", "register")
                 is_valid = False
         return is_valid
 
@@ -76,17 +92,14 @@ class Employee:
     def validate_login_employee(data):
         is_valid = True
         
-        if not Employee.get_employee_by_email(data):
-            return False
-        
         db_data = Employee.get_employee_by_email(data)
         
         if not db_data:
-            flash(u"Invalid Email/Password", 'invalid_email_or_password')
+            flash("Invalid Email/Password", 'login')
             return False
         if not bcrypt.check_password_hash(db_data.password, data['password']):
             # if we get False after checking the password
-            flash(u"Invalid Email/Password",'invalid_password')
+            flash("Invalid Email/Password",'login')
             return False
         return is_valid
 
@@ -95,13 +108,34 @@ class Employee:
         is_valid = True
 
         if not Employee.get_employee_by_email(data):
-            pass
+            flash("Email is not associated with an existing account.", "reset_password")
+            is_valid = False
+        else:
+            if data["password"] != data["confirm_password"]:
+                flash("Passwords must match.", "register")
+                is_valid = False
+            if len(data["password"]) < 8:
+                flash("Password must be at least 8 characters.", "register")
+                is_valid = False
+            if not re.findall("[\d]", data["password"]):
+                flash("Password must contain at least 1 digit.", "register")
+                is_valid = False
+            if not re.findall("[^\w\s]", data["password"]):
+                flash("Password must contain at least 1 special character.", "register")
+                is_valid = False
 
         return is_valid
 
     @staticmethod
     def validate_update_employee(data):
         is_valid = True
+
+        if len(data["first_name"]) < 3:
+            flash("First name must be at least 3 characters.")
+            is_valid = False
+        if len(data["last_name"]) < 3:
+            flash("Last name must be at least 3 characters.")
+            is_valid = False
 
         return is_valid
 
@@ -119,7 +153,16 @@ class Employee:
         query = """
         UPDATE employees
         SET password = %(password)s
-        WHERE id = %(id)s;
+        WHERE email = %(email)s;
+        """
+        return connectToMySQL(cls.db_name).query_db(query, data)
+
+    @classmethod
+    def reset_employee_password(cls, data):
+        query = """
+        UPDATE employees
+        SET password = %(password)s
+        WHERE email = %(email)s;
         """
         return connectToMySQL(cls.db_name).query_db(query, data)
 

@@ -3,7 +3,8 @@ from flask_app.models import employee, role, timecard
 from flask import render_template, redirect, request, session, flash
 from flask_bcrypt import Bcrypt
 from datetime import datetime, timedelta
-import random
+import random, smtplib
+from email.message import EmailMessage
 
 bcrypt = Bcrypt(app)
 
@@ -11,92 +12,23 @@ bcrypt = Bcrypt(app)
 def index():
     return render_template("index.html")
 
-@app.route("/generate_admin")
-def gen_admin():
-
-    admin = employee.Employee.get_employee_by_id({"id": 2})
-    pw_hash = bcrypt.generate_password_hash("password1!")
-    data = {
-        "id": admin.id,
-        "first_name": admin.first_name,
-        "last_name": admin.last_name,
-        "email": admin.email,
-        "password": pw_hash,
-        "phone_number": admin.phone_number,
-        "birthdate": admin.birthdate,
-        "pay_rate": admin.pay_rate,
-        "avatar_url": admin.avatar_url,
-        "status": admin.status,
-        "is_manager": admin.is_manager,
-        "pin_code": admin.pin_code,
-        "reg_code": admin.reg_code,
-        "role_id": admin.role.id
-    }
-    employee.Employee.update_employee(data)
-
-    return redirect("/")
-
-@app.route("/register_employee_page" , methods = ['POST'])
-def register_employee_page():
-    if employee.Employee.validate_register_employee_login(request.form):
-        registering_employee = employee.Employee.get_employee_by_email(request.form)
-        session['id'] = registering_employee.id
-        return render_template('register_employee.html', employee = registering_employee)
-    
-    return request.referrer
-
 @app.route('/register_employee', methods = ['POST'])
 def register_employee():
-    if 'id' not in session:
-        return redirect("/")
-    data = { "id" : session['id']}
-    employee.Employee.update_employee(request.form)
-    user_employee = employee.Employee.get_employee_by_id(data)
-    
-    
-    return redirect("/employee_dashboard", employee = user_employee)
-
-@app.route("/create_employee" , methods = ['POST'])
-def create_employee():
-    if 'id' not in session:
-        return redirect("/")
-
     data = {
-        "first_name": request.form["first_name"],
-        "last_name": request.form["last_name"],
-        "email": request.form["email"],
-        "phone_number": request.form["phone_number"],
-        "role_id": request.form["role_id"],
+        "email": request.form["reg_email"],
+        "reg_code": request.form["reg_code"],
+        "password": request.form["reg_password"],
+        "confirm_password": request.form["confirm_password"]
     }
-
-    if employee.Employee.validate_register_employee(data):
-        all_employees = employee.Employee.get_all_employees()
-        all_reg_codes = []
-        all_pin_codes = []
-        for this_employee in all_employees:
-            all_reg_codes.append(this_employee.reg_code)
-            all_pin_codes.append(this_employee.pin_code)
-
-        reg_code_not_in_list = False
-        while not reg_code_not_in_list:
-            new_reg_code = random.randint(100000, 999999)
-            if new_reg_code not in all_reg_codes:
-                reg_code_not_in_list = True
-                data["reg_code"] = new_reg_code
-
-        pin_code_not_in_list = False
-        while not pin_code_not_in_list:
-            new_pin_code = random.randint(100000, 999999)
-            if new_pin_code not in all_pin_codes:
-                pin_code_not_in_list = True
-                data["pin_code"] = new_pin_code
-
-        employee.Employee.register_employee(data)
-
-        return redirect('/dashboard')
     
-    return request.referrer
-
+    if employee.Employee.validate_register_employee(data):
+        data["password"] = bcrypt.generate_password_hash(data["password"])
+        employee.Employee.register_employee(data)
+        registered_employee = employee.Employee.get_employee_by_email(data)
+        session["id"] = registered_employee.id
+        return redirect("/dashboard")
+    
+    return redirect("/")
 
 @app.route("/login_employee", methods = ['POST'])
 def login_employee():
@@ -110,14 +42,23 @@ def login_employee():
         return redirect("/dashboard")
     else:
         return redirect("/")
-        return request.referrer
 
 @app.route("/reset")
 def reset_password_page():
     return render_template("reset_password.html")
     
-@app.route("/reset_password")
+@app.route("/reset_password", methods=["POST"])
 def reset_password():
+    data = {
+        "email": request.form["email"],
+        "password": request.form["password"],
+        "confirm_password": request.form["confirm_password"]
+    }
+    if employee.Employee.validate_reset_password(data):
+        pass
+    else:
+        return redirect("/reset")
+
     return redirect("/")
 
 @app.route("/dashboard")
@@ -168,6 +109,77 @@ def dashboard():
         return render_template("dashboard_manager.html", logged_in_employee = this_employee, worked_employees = worked_employees, this_week = this_week, total_hours = total_hours, total_wages = total_wages)
     else:
         return render_template("dashboard_employee.html", logged_in_employee = this_employee, worked_employees = worked_employees, this_week = this_week)
+
+@app.route("/team/new")
+def new_employee():
+    if not "id" in session:
+        return redirect("/")
+
+    logged_in_employee = employee.Employee.get_employee_by_id({ "id": session["id"] })
+    all_roles = role.Role.get_all_roles()
+
+    return render_template("create_employee.html", logged_in_employee=logged_in_employee, all_roles=all_roles)
+
+@app.route("/team/create" , methods = ['POST'])
+def create_employee():
+    if 'id' not in session:
+        return redirect("/")
+
+    data = {
+        "first_name": request.form["first_name"],
+        "last_name": request.form["last_name"],
+        "email": request.form["email"],
+        "phone_number": request.form["phone_number"],
+        "role_id": request.form["role_id"],
+    }
+
+    if employee.Employee.validate_new_employee(data):
+        all_employees = employee.Employee.get_all_employees()
+        all_reg_codes = []
+        all_pin_codes = []
+        for this_employee in all_employees:
+            all_reg_codes.append(this_employee.reg_code)
+            all_pin_codes.append(this_employee.pin_code)
+
+        reg_code_not_in_list = False
+        while not reg_code_not_in_list:
+            new_reg_code = random.randint(100000, 999999)
+            if new_reg_code not in all_reg_codes:
+                reg_code_not_in_list = True
+                data["reg_code"] = new_reg_code
+
+        pin_code_not_in_list = False
+        while not pin_code_not_in_list:
+            new_pin_code = random.randint(100000, 999999)
+            if new_pin_code not in all_pin_codes:
+                pin_code_not_in_list = True
+                data["pin_code"] = new_pin_code
+
+        data["phone_number"] = data["phone_number"].replace("-", "") if "phone_number" in data else ""
+
+        new_employee_id = employee.Employee.create_employee(data)
+        new_employee = employee.Employee.get_employee_by_id({"id": new_employee_id })
+
+        # Send an email to the specified email address with the registration code.
+        # content = f"""
+        # Welcome to Arrays of Sunshine! Here's your registration code: {new_employee.reg_code}
+        # """
+
+        # msg = EmailMessage()
+        # msg.set_content(content)
+
+        # me = "aostestuser912@gmail.com"
+        # msg["Subject"] = "Arrays of Sunshine Registration Code"
+        # msg["From"] = me
+        # msg["To"] = new_employee.email
+
+        # s = smtplib.SMTP("localhost")
+        # s.send_message(msg)
+        # s.quit()
+
+        return redirect('/team')
+    
+    return redirect("/team/new")
 
 @app.route("/team/<int:id>")
 def view_employee(id):
@@ -242,16 +254,16 @@ def update_employee(id):
     if employee.Employee.validate_update_employee(data):
         this_employee = employee.Employee.get_employee_by_id(data)
         data["phone_number"] = data["phone_number"].replace("-", "") if "phone_number" in data else this_employee.phone_number
-        data["role_id"] = data["role_id"] if "role_id" in data else this_employee.role.id
-        data["pay_rate"] = data["pay_rate"] if "pay_rate" in data else this_employee.pay_rate
-        data["pin_code"] = data["pin_code"] if "pin_code" in data else this_employee.pin_code
+        data["role_id"] = int(data["role_id"]) if "role_id" in data else this_employee.role.id
+        data["pay_rate"] = float(data["pay_rate"]) if "pay_rate" in data else this_employee.pay_rate
+        data["pin_code"] = int(data["pin_code"]) if "pin_code" in data else this_employee.pin_code
         if "password" in data and len(data["password"]) > 7:
             data["password"] = bcrypt.generate_password_hash(data["password"])
         else:
             data["password"] = this_employee.password
         data["status"] = this_employee.status
-        data["reg_code"] = this_employee.reg_code
-        data["is_manager"] = data["is_manager"] if "is_manager" in data else this_employee.is_manager
+        data["reg_code"] = int(this_employee.reg_code)
+        data["is_manager"] = int(data["is_manager"]) if "is_manager" in data else this_employee.is_manager
         employee.Employee.update_employee(data)
         return redirect(f"/team/{id}")
     return redirect(f"/team/id/edit")
@@ -274,9 +286,9 @@ def terminate_employee(id):
 
     data = {"id": id}
     employee.Employee.terminate_employee(data)
-    return redirect("/team_roster")
+    return redirect("/team")
 
-@app.route('/team_roster')
+@app.route('/team')
 def team_roster():
     if 'id' not in session:
         return redirect("/")

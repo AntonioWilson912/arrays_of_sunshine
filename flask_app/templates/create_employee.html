@@ -22,7 +22,14 @@
     </nav>
     <div class="container">
         <h2>Add to the Team </h2>
-        <form action="/edit_employee" method="post">
+        {% with messages = get_flashed_messages(category_filter=["new_employee"]) %}
+            {% if messages %}
+                {% for message in messages %}
+                    <p class="text-danger">{{message}}</p> 
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form action="/team/create" method="post">
             <div class="form-group">
                 <div class="row">
                     <div class="col">
@@ -69,15 +76,16 @@
                         <label class="control-label" for="role">Role</label>
                     </div>
                     <div class="col">
-                        <select class="form-select" aria-label="Default select example" name="role" id="role">
-                            <option selected>Select a role</option>
-                            <option value="">Inventory</option>
-                            <option value="">Cashier</option>
+                        <select class="form-select" aria-label="Default select example" name="role_id" id="role_id">
+                            <option value="-1" selected>Select a role</option>
+                            {% for this_role in all_roles %}
+                            <option value="{{ this_role.id }}">{{ this_role.name }}</option>
+                            {% endfor %}
                         </select>
                     </div>
                 </div>
             </div>
-            <button class="btn btn-success" type="submit">Save Employee</button>
+            <button class="btn btn-success" type="submit">Add Employee</button>
 
         </form>
     </div>
