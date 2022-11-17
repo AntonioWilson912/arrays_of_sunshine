@@ -1,0 +1,11 @@
+.link-white {
+    color: white;
+}
+
+.link-white:hover {
+    color: #ccc;
+}
+
+.btn-orange {
+    background-color: orange;
+}

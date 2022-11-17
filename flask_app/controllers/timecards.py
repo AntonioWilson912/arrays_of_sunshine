@@ -51,21 +51,21 @@ def timesheets():
         "week_end": week_end
     }
 
-    this_week = f"{week_start} - {week_end}"
-
     all_employees_timecards = timecard.TimeCard.get_timecards_by_week(data)
 
     for current_employee in all_employees_timecards:
         current_employee.total_hours = 0.0
         for current_timecard in current_employee.timecards:
             current_employee.total_hours += current_timecard.hours_worked
+            current_timecard.time_in = str(current_timecard.time_in)[:5]
+            current_timecard.time_out = str(current_timecard.time_out)[:5]
         #print(float(current_employee.pay_rate))
         current_employee.total_wages = "{:.2f}".format(float(current_employee.pay_rate) * current_employee.total_hours)
 
     #print(all_employees_timecards)
     this_employee = employee.Employee.get_employee_by_id({ "id": session["id"]})
 
-    return render_template("timesheets.html", all_employees = all_employees_timecards, this_employee = this_employee, this_week = this_week)
+    return render_template("timesheets.html", all_employees = all_employees_timecards, this_employee = this_employee, this_week = data)
 
 @app.route("/team/<int:employee_id>/timecards")
 def view_employee_timecards(employee_id):
@@ -76,6 +76,8 @@ def view_employee_timecards(employee_id):
     this_employee.total_hours = 0.0
     for this_timecard in this_employee.timecards:
         this_employee.total_hours += this_timecard.hours_worked
+        this_timecard.time_in = str(this_timecard.time_in)[:5]
+        this_timecard.time_out = str(this_timecard.time_out)[:5]
     this_employee.total_wages = "{:.2f}".format(this_employee.total_hours * float(this_employee.pay_rate))
 
     logged_in_employee = employee.Employee.get_employee_by_id({ "id": session["id"] })

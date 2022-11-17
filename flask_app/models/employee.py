@@ -115,13 +115,13 @@ class Employee:
                 flash("Passwords must match.", "register")
                 is_valid = False
             if len(data["password"]) < 8:
-                flash("Password must be at least 8 characters.", "register")
+                flash("Password must be at least 8 characters.", "reset_password")
                 is_valid = False
             if not re.findall("[\d]", data["password"]):
-                flash("Password must contain at least 1 digit.", "register")
+                flash("Password must contain at least 1 digit.", "reset_password")
                 is_valid = False
             if not re.findall("[^\w\s]", data["password"]):
-                flash("Password must contain at least 1 special character.", "register")
+                flash("Password must contain at least 1 special character.", "reset_password")
                 is_valid = False
 
         return is_valid
@@ -170,7 +170,8 @@ class Employee:
     def get_all_employees(cls):
         query = """
         SELECT * FROM employees
-        LEFT JOIN roles ON employees.role_id = roles.id;
+        LEFT JOIN roles ON employees.role_id = roles.id
+        WHERE status = "HIRED";
         """
         results = connectToMySQL(cls.db_name).query_db(query)
         employees = []

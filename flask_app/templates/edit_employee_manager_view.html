@@ -6,138 +6,140 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <title>{{ this_employee.first_name }} {{ this_employee.last_name }} - Edit - Arrays of Sunshine</title>
 </head>
 
 <body>
-    <nav class="navbar navbar-light bg-light justify-content-between">
+    <nav class="navbar navbar-light bg-secondary text-white justify-content-between">
         <div>
             <a class="navbar-brand">Arrays of Sunshine</a>
         </div>
         <div>
-            <a href="/dashboard">Dashboard</a> |
-            <a href="/team/{{ logged_in_employee.id }}">Your Profile</a> |
-            <a href="/logout">Log Out</a>
+            <a href="/dashboard" class="link-white">Dashboard</a> |
+            <a href="/team/{{ logged_in_employee.id }}" class="link-white">Your Profile</a> |
+            <a href="/logout" class="link-white">Log Out</a>
         </div>
     </nav>
-    <div class="container">
-        <h2>Edit {{ this_employee.first_name }} {{ this_employee.last_name }}</h2>
-        <form action="/team/{{ this_employee.id }}/update" method="post">
-            <div class="form-group">
-                <div class="row">
-                    <div class="col">
-                        <label class="control-label" for="first_name">First Name:</label>
-                    </div>
-                    <div class="col">
-                        <input class="form-control" id="first_name" name="first_name" value="{{ this_employee.first_name }}" type="text">
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="row">
-                    <div class="col">
-                        <label class="control-label" for="date">Last Name:</label>
-                    </div>
-                    <div class="col">
-                        <input class="form-control" id="last_name" name="last_name" value="{{ this_employee.last_name }}" type="text">
+    <div class="container p-5">
+        <h2 class="text-center">Edit {{ this_employee.first_name }} {{ this_employee.last_name }}</h2>
+        <div class="container border border-dark p-4 mt-4">
+            <form action="/team/{{ this_employee.id }}/update" method="post">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col">
+                            <label class="control-label" for="first_name">First Name:</label>
+                        </div>
+                        <div class="col">
+                            <input class="form-control" id="first_name" name="first_name" value="{{ this_employee.first_name }}" type="text">
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="form-group">
-                <div class="row">
-                    <div class="col">
-                        <label class="control-label" for="email">Email</label>
-                    </div>
-                    <div class="col">
-                        <input class="form-control" id="email" name="email" value="{{ this_employee.email }}" type="text">
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="row">
-                    <div class="col">
-                        <label class="control-label" for="phone_number">Phone Number</label>
-                    </div>
-                    <div class="col">
-                        <input class="form-control" id="phone_number" name="phone_number" value="{{ this_employee.phone_number }}" type="text">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col">
+                            <label class="control-label" for="date">Last Name:</label>
+                        </div>
+                        <div class="col">
+                            <input class="form-control" id="last_name" name="last_name" value="{{ this_employee.last_name }}" type="text">
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="form-group">
-                <div class="row">
-                    <div class="col">
-                        <label class="control-label" for="password">Role</label>
-                    </div>
-                    <div class="col">
-                        <select class="form-control" name="role_id" id="role_id">
-                        {% for this_role in all_roles %}
-                            <option value="{{ this_role.id }}">{{ this_role.name }}</option>
-                        {% endfor %}
-                        </select>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col">
+                            <label class="control-label" for="email">Email</label>
+                        </div>
+                        <div class="col">
+                            <input class="form-control" id="email" name="email" value="{{ this_employee.email }}" type="text">
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="form-group">
-                <div class="row">
-                    <div class="col">
-                        <label class="control-label" for="pay_rate">Pay Rate ($):</label>
-                    </div>
-                    <div class="col">
-                        <input class="form-control" id="pay_rate" name="pay_rate" value="{{ this_employee.pay_rate }}" type="text">
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="row">
-                    <div class="col">
-                        <label class="control-label" for="pin_code">Pin Code:</label>
-                    </div>
-                    <div class="col">
-                        <input class="form-control" id="confirm_password" name="pin_code" value="{{ this_employee.pin_code }}" type="text">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col">
+                            <label class="control-label" for="phone_number">Phone Number</label>
+                        </div>
+                        <div class="col">
+                            <input class="form-control" id="phone_number" name="phone_number" value="{{ this_employee.phone_number }}" type="text">
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="form-group">
-                <div class="row">
-                    <div class="col">
-                        <label class="control-label" for="avatar_url">Avatar URL:</label>
-                    </div>
-                    <div class="col">
-                        <input class="form-control" id="avatar_url" name="avatar_url" value="{{ this_employee.avatar_url }}" type="text">
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="row">
-                    <div class="col">
-                        <label class="control-label" for="birthdate">Birthdate:</label>
-                    </div>
-                    <div class="col">
-                        <input class="form-control" id="birthdate" name="birthdate" value="{{ this_employee.birthdate }}" type="date">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col">
+                            <label class="control-label" for="password">Role</label>
+                        </div>
+                        <div class="col">
+                            <select class="form-control" name="role_id" id="role_id">
+                            {% for this_role in all_roles %}
+                                <option value="{{ this_role.id }}">{{ this_role.name }}</option>
+                            {% endfor %}
+                            </select>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="form-group">
-                <div class="row">
-                    <div class="col">
-                        <label class="control-label" for="is_manager">Is Manager?</label>
-                    </div>
-                    <div class="col">
-                        <input class="form-control" id="is_manager_yes" name="is_manager" value="1" type="radio"
-                        {% if this_employee.is_manager == 1 %} checked {% endif %}
-                        >
-                        <label for="is_manager_yes">Yes</label>
-                    </div>
-                    <div class="col">
-                        <input class="form-control" id="is_manager_no" name="is_manager" value="0" type="radio"
-                        {% if this_employee.is_manager == 0 %} checked {% endif %}>
-                        <label for="is_manager_no">No</label>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col">
+                            <label class="control-label" for="pay_rate">Pay Rate ($):</label>
+                        </div>
+                        <div class="col">
+                            <input class="form-control" id="pay_rate" name="pay_rate" value="{{ this_employee.pay_rate }}" type="text">
+                        </div>
                     </div>
                 </div>
-            </div>
-            <button class="btn btn-success" type="submit">Save Employee</button>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col">
+                            <label class="control-label" for="pin_code">Pin Code:</label>
+                        </div>
+                        <div class="col">
+                            <input class="form-control" id="confirm_password" name="pin_code" value="{{ this_employee.pin_code }}" type="text">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col">
+                            <label class="control-label" for="avatar_url">Avatar URL:</label>
+                        </div>
+                        <div class="col">
+                            <input class="form-control" id="avatar_url" name="avatar_url" value="{{ this_employee.avatar_url }}" type="text">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col">
+                            <label class="control-label" for="birthdate">Birthdate:</label>
+                        </div>
+                        <div class="col">
+                            <input class="form-control" id="birthdate" name="birthdate" value="{{ this_employee.birthdate }}" type="date">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col">
+                            <label class="control-label" for="is_manager">Is Manager?</label>
+                        </div>
+                        <div class="col">
+                            <input class="form-check form-check-inline form-check-input" id="is_manager_yes" name="is_manager" value="1" type="radio"
+                            {% if this_employee.is_manager == 1 %} checked {% endif %}>
+                            <label for="is_manager_yes">Yes</label>
+                        </div>
+                        <div class="col">
+                            <input class="form-check form-check-inline form-check-input" id="is_manager_no" name="is_manager" value="0" type="radio"
+                            {% if this_employee.is_manager == 0 %} checked {% endif %}>
+                            <label for="is_manager_no">No</label>
+                        </div>
+                    </div>
+                </div>
+                <input class="btn btn-success" type="submit" value="Save Employee">
 
-        </form>
+            </form>
+        </div>
     </div>
 </body>
 

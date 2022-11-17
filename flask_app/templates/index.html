@@ -9,9 +9,12 @@
     <title>Arrays of Sunshine - Login</title>
 </head>
 <body>
-    <div class="container">
-        <div class="row">
-            <div class="col">
+    <nav class="container-fluid navbar navbar-expand-lg bg-secondary">
+        <h1 class="navbar-brand text-white"><a href="/" class="text-reset text-decoration-none">Arrays of Sunshine</a></h1>
+    </nav>
+    <div class="container-fluid">
+        <div class="row d-flex justify-content-center p-5">
+            <div class="col-4 bg-light border border-dark mr-4 rounded p-4">
                 <h3>Register</h3>
                 {% with messages = get_flashed_messages(category_filter=["register"]) %}
                     {% if messages %}
@@ -21,7 +24,6 @@
                     {% endif %}
                 {% endwith %}
                 <form action="/register_employee" id="registerEmployeeForm" method="post">
-                    <div class="form-group">
                     <div class="form-group">
                         <label for="reg_email">Email address:</label>
                         <input type="email" name="reg_email" class="form-control" id="reg_email" placeholder="Enter email">
@@ -39,10 +41,10 @@
                         <label for="confirm_password">Confirm Password:</label>
                         <input type="password" class="form-control" id="confirm_password" placeholder="Re-type password" name="confirm_password">
                     </div>
-                    <button type="submit" class="btn btn-primary" onclick="register_employee()">Register</button>
+                    <input type="submit" class="btn btn-danger" value="Register">
                 </form>
             </div>
-            <div class="col">
+            <div class="col-4 bg-light border border-dark mr-4 rounded p-4">
                 <h3>Login</h3>
                 {% with messages = get_flashed_messages(category_filter=["login"]) %}
                     {% if messages %}
@@ -61,8 +63,8 @@
                         <label for="login_password">Password</label>
                         <input type="password" class="form-control" id="login_password" placeholder="Password" name="login_password">
                     </div>
-                    <a href="/reset">Forgot your password? Reset it here!</a>
-                    <button type="submit" class="btn btn-primary">Login</button>
+                    <a href="/reset" class="d-block mb-4">Forgot your password? Reset it here!</a>
+                    <input type="submit" class="btn btn-primary" value="Login">
                 </form>
             </div>
         </div>

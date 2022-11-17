@@ -96,8 +96,6 @@ def dashboard():
         "week_end": week_end
     }
 
-    this_week = f"{week_start} - {week_end}"
-
     all_employees_timecards = timecard.TimeCard.get_timecards_by_week(data)
     worked_employees = []
     total_hours = 0.0
@@ -126,9 +124,9 @@ def dashboard():
             break
 
     if this_employee.is_manager == 1:
-        return render_template("dashboard_manager.html", logged_in_employee = this_employee, worked_employees = worked_employees, this_week = this_week, total_hours = total_hours, total_wages = total_wages)
+        return render_template("dashboard_manager.html", logged_in_employee = this_employee, worked_employees = worked_employees, this_week = data, total_hours = total_hours, total_wages = total_wages)
     else:
-        return render_template("dashboard_employee.html", logged_in_employee = this_employee, worked_employees = worked_employees, this_week = this_week)
+        return render_template("dashboard_employee.html", logged_in_employee = this_employee, worked_employees = worked_employees, this_week = data)
 
 @app.route("/team/new")
 def new_employee():
@@ -206,6 +204,8 @@ def view_employee(id):
             this_employee.ytd_hours += this_timecard.hours_worked
 
     this_employee.role = employee.Employee.get_employee_by_id({ "id": id }).role
+    if this_employee.avatar_url == None:
+        this_employee.avatar_url = "https://www.blexar.com/avatar.png"
 
     return render_template("view_employee.html", this_employee=this_employee, logged_in_employee=logged_in_employee)
 

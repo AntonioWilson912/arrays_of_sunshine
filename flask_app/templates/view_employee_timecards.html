@@ -6,21 +6,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <title>Timesheets - Arrays of Sunshine</title>
 </head>
 
 <body>
-    <nav class="navbar navbar-light bg-light justify-content-between">
+    <nav class="navbar navbar-light bg-secondary text-white justify-content-between">
         <div>
             <a class="navbar-brand">Arrays of Sunshine</a>
         </div>
         <div>
-            <a href="/dashboard">Dashboard</a> |
-            <a href="/team/{{ logged_in_employee.id }}">Your Profile</a> |
-            <a href="/logout">Log Out</a>
+            <a href="/dashboard" class="link-white">Dashboard</a> |
+            <a href="/team/{{ logged_in_employee.id }}" class="link-white">Your Profile</a> |
+            <a href="/logout" class="link-white">Log Out</a>
         </div>
     </nav>
-    <div class="container text-center">
+    <div class="container text-center p-5">
 
         <h2>{{ this_employee.first_name }} {{ this_employee.last_name }}'s Time Cards</h2>
         <div class="row">
@@ -36,7 +37,7 @@
         </div>
         <div class="row">
             <div class="col">
-                <table class="table">
+                <table class="table table-striped table-success">
                     <thead>
                         <tr>
                             <th scope="col">Day</th>
@@ -48,15 +49,15 @@
                     </thead>
                     <tbody>
                         {% if this_employee.timecards|length > 0 %}
-                        {% for this_timecard in this_employee.timecards %}
-                        <tr>
-                            <td> {{ this_timecard.date }}</td>
-                            <td> {{ this_timecard.time_in }}</td>
-                            <td> {{ this_timecard.time_out }}</td>
-                            <td> {{ this_timecard.hours_worked }}</td>
-                            <td> <a href="/team/{{ this_employee.id }}/timecards/{{ this_timecard.id }}">View</a>
-                        </tr>
-                        {% endfor %}
+                            {% for this_timecard in this_employee.timecards %}
+                            <tr>
+                                <td> {{ this_timecard.date|strftime }}</td>
+                                <td> {{ this_timecard.time_in }}</td>
+                                <td> {{ this_timecard.time_out }}</td>
+                                <td> {{ this_timecard.hours_worked }}</td>
+                                <td> <a href="/team/{{ this_employee.id }}/timecards/{{ this_timecard.id }}">View</a>
+                            </tr>
+                            {% endfor %}
                         {% else %}
                         <tr>
                             <td colspan="5">{{ this_employee.first_name }} has not worked any shifts whatsoever.</td>

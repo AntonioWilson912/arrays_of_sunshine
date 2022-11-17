@@ -6,51 +6,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://kit.fontawesome.com/1562d2a823.js" crossorigin="anonymous"></script>
     <title>{{ this_employee.first_name }} {{ this_employee.last_name }} - Arrays of Sunshine</title>
 </head>
 
 <body>
-    <nav class="navbar navbar-light bg-light justify-content-between">
+    <nav class="navbar navbar-light bg-secondary text-white justify-content-between">
         <div>
             <a class="navbar-brand">Arrays of Sunshine</a>
         </div>
         <div>
-            <a href="/dashboard">Dashboard</a> |
-            <a href="/team/{{ logged_in_employee.id }}">Your Profile</a> |
-            <a href="/logout">Log Out</a>
+            <a href="/dashboard" class="link-white">Dashboard</a> |
+            <a href="/team/{{ logged_in_employee.id }}" class="link-white">Your Profile</a> |
+            <a href="/logout" class="link-white">Log Out</a>
         </div>
     </nav>
-    <div class="container text-center">
+    <div class="container text-center p-5">
         <div class="row">
             <div class="col">
                 <img src="{{ this_employee.avatar_url }}" alt="avatar" class="rounded-circle img-thumbnail" width="200">
+                <a href="/team/{{ this_employee.id }}/edit"><i class="fa-solid fa-pencil"></i></a>
             </div>
-            
         </div>
         <div class="row">
             <div class="col">
                 <h2>{{ this_employee.first_name }} {{ this_employee.last_name }}</h2>
                 <p>{{ this_employee.role.name }}</p>
             </div>
-            
         </div>
         <div class="row">
             <div class="col">
+                <i class="fa-solid fa-envelope"></i>
                 {{ this_employee.email }}
             </div>
             <div class="col">
+                <i class="fa-solid fa-phone"></i>
                 {{ this_employee.phone_number }}
             </div>
             <div class="col">
-                {{ this_employee.birthdate }}
+                <i class="fa-solid fa-cake-candles"></i>
+                {% if this_employee.birthdate %}
+                    {{ this_employee.birthdate|strftime }}
+                {% else %}
+                    <p><em>No birthdate available</em></p>
+                {% endif%}
             </div>
         </div>
-        <div class="row">
-            <div class="col">
-                <p>Shifts Worked: {{ this_employee.timecards|length }} </p>
+        <div class="row d-flex justify-content-center text-left my-4">
+            <div class="col-5 bg-light border border-dark mr-4 rounded p-4">
+                <p>Shifts Worked:</p>
+                <h3>{{ this_employee.timecards|length }}</h3>
             </div>
-            <div class="col">
-                <p>Hours Worked (YTD): {{ this_employee.ytd_hours }}</p>
+            <div class="col-5 bg-light border border-dark mr-4 rounded p-4">
+                <p>Hours Worked (YTD):</p>
+                <h3>{{ this_employee.ytd_hours }}</h3>
             </div>
         </div>
         {% if this_employee.id == logged_in_employee.id or logged_in_employee.is_manager == 1 %}
