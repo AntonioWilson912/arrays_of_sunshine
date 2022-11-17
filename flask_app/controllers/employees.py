@@ -3,14 +3,34 @@ from flask_app.models import employee, role, timecard
 from flask import render_template, redirect, request, session, flash
 from flask_bcrypt import Bcrypt
 from datetime import datetime, timedelta
-import random, smtplib
-from email.message import EmailMessage
+import random, yagmail
+
+from dotenv import load_dotenv
+load_dotenv()
+import os
 
 bcrypt = Bcrypt(app)
+
+def send_email(new_employee):
+    body = f"""
+    Welcome to Arrays of Sunshine! Here's your registration code: {new_employee.reg_code}
+    """
+    #print("got here")
+    yag = yagmail.SMTP(os.getenv("GMAIL_USERNAME"), oauth2_file="~/oauth2_creds.json")
+
+    #print("and here")
+    yag.send(to = new_employee.email, subject = "Arrays of Sunshine - Registration Link", contents = body)
+    #print("and lastly here")
 
 @app.route("/")
 def index():
     return render_template("index.html")
+
+# @app.route("/secret")
+# def secret():
+#     an_employee = employee.Employee.get_employee_by_email({"email": "antonio@ncstore.biz"})
+#     send_email(an_employee)
+#     return "hi"
 
 @app.route('/register_employee', methods = ['POST'])
 def register_employee():
@@ -160,22 +180,8 @@ def create_employee():
         new_employee_id = employee.Employee.create_employee(data)
         new_employee = employee.Employee.get_employee_by_id({"id": new_employee_id })
 
-        # Send an email to the specified email address with the registration code.
-        # content = f"""
-        # Welcome to Arrays of Sunshine! Here's your registration code: {new_employee.reg_code}
-        # """
-
-        # msg = EmailMessage()
-        # msg.set_content(content)
-
-        # me = "aostestuser912@gmail.com"
-        # msg["Subject"] = "Arrays of Sunshine Registration Code"
-        # msg["From"] = me
-        # msg["To"] = new_employee.email
-
-        # s = smtplib.SMTP("localhost")
-        # s.send_message(msg)
-        # s.quit()
+        # Send an email to the specified email address with the registration code. Currently not working
+        send_email(new_employee)
 
         return redirect('/team')
     
@@ -198,6 +204,8 @@ def view_employee(id):
         # print(this_timecard.hours_worked)
         if int(this_timecard.date.strftime("%Y")) == datetime.today().year:
             this_employee.ytd_hours += this_timecard.hours_worked
+
+    this_employee.role = employee.Employee.get_employee_by_id({ "id": id }).role
 
     return render_template("view_employee.html", this_employee=this_employee, logged_in_employee=logged_in_employee)
 
@@ -256,18 +264,17 @@ def update_employee(id):
         data["phone_number"] = data["phone_number"].replace("-", "") if "phone_number" in data else this_employee.phone_number
         data["role_id"] = int(data["role_id"]) if "role_id" in data else this_employee.role.id
         data["pay_rate"] = float(data["pay_rate"]) if "pay_rate" in data else this_employee.pay_rate
-        data["pin_code"] = int(data["pin_code"]) if "pin_code" in data else this_employee.pin_code
+        data["pin_code"] = data["pin_code"] if "pin_code" in data else this_employee.pin_code
         if "password" in data and len(data["password"]) > 7:
             data["password"] = bcrypt.generate_password_hash(data["password"])
         else:
             data["password"] = this_employee.password
         data["status"] = this_employee.status
-        data["reg_code"] = int(this_employee.reg_code)
+        data["reg_code"] = this_employee.reg_code
         data["is_manager"] = int(data["is_manager"]) if "is_manager" in data else this_employee.is_manager
         employee.Employee.update_employee(data)
         return redirect(f"/team/{id}")
     return redirect(f"/team/id/edit")
-    return 'success', 200
 
 
 # Ajax route
@@ -277,7 +284,7 @@ def delete_employee(id):
         return redirect("/")
     data = { "id" : id}
     employee.Employee.delete_employee(data)
-    return "success", 200
+    return redirect("/team")
 
 @app.route("/team/<int:id>/terminate")
 def terminate_employee(id):
