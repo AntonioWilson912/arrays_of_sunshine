@@ -83,11 +83,14 @@ class TimeCard:
     # Assume the times are in the format XX:XX (24-hour time format) and that time_two is greater than time_one
     @staticmethod
     def delta_time(time_one, time_two):
-        if len(time_one) > 5:
-            time_one = time_one[:5]
-        if len(time_two) > 5:
-            time_two = time_two[:5]
+        if len(time_one) != 8:
+            time_one = "0" + time_one
+        if len(time_two) != 8:
+            time_two = "0" + time_one
 
+        time_one = time_one[:5]
+        time_two = time_two[:5]
+        
         time_one_hours = int(time_one[:2])
         time_one_minutes = int(time_one[3:])
         time_two_hours = int(time_two[:2])

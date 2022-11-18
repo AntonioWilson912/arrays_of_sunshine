@@ -76,6 +76,13 @@ def view_employee_timecards(employee_id):
     this_employee.total_hours = 0.0
     for this_timecard in this_employee.timecards:
         this_employee.total_hours += this_timecard.hours_worked
+        this_timecard.time_in = str(this_timecard.time_in)
+        this_timecard.time_out = str(this_timecard.time_out)
+
+        if len(this_timecard.time_in) != 8:
+            this_timecard.time_in = "0" + this_timecard.time_in
+        if len(this_timecard.time_out) != 8:
+            this_timecard.time_out = "0" + this_timecard.time_out
         this_timecard.time_in = str(this_timecard.time_in)[:5]
         this_timecard.time_out = str(this_timecard.time_out)[:5]
     this_employee.total_wages = "{:.2f}".format(this_employee.total_hours * float(this_employee.pay_rate))
