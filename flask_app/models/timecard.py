@@ -1,6 +1,7 @@
 from flask_app.config.mysqlconnection import connectToMySQL
 from flask_app.models import employee
 from flask import flash
+import datetime
 
 class TimeCard:
 
@@ -26,6 +27,7 @@ class TimeCard:
 
         if len(data["date"]) == 0:
             flash("Date must be present.", "timecard")
+            return False
 
         # Test whether the input timecard data overlaps with an existing timecard
         all_timecards_for_date_employee = TimeCard.get_timecards_by_date(data)
@@ -56,6 +58,7 @@ class TimeCard:
 
         if len(data["date"]) == 0:
             flash("Date must be present.", "timecard")
+            return False
 
         # Test whether the input timecard data overlaps with a separate existing timecard
         all_timecards_for_date_employee = TimeCard.get_timecards_by_date_exclude(data)
@@ -83,18 +86,13 @@ class TimeCard:
     # Assume the times are in the format XX:XX (24-hour time format) and that time_two is greater than time_one
     @staticmethod
     def delta_time(time_one, time_two):
-        if len(time_one) != 8:
-            time_one = "0" + time_one
-        if len(time_two) != 8:
-            time_two = "0" + time_one
-
-        time_one = time_one[:5]
-        time_two = time_two[:5]
+        time_one = time_one.split(":")
+        time_two = time_two.split(":")
         
-        time_one_hours = int(time_one[:2])
-        time_one_minutes = int(time_one[3:])
-        time_two_hours = int(time_two[:2])
-        time_two_minutes = int(time_two[3:])
+        time_one_hours = int(time_one[0])
+        time_one_minutes = int(time_one[1])
+        time_two_hours = int(time_two[0])
+        time_two_minutes = int(time_two[1])
 
         delta_hours = time_two_hours - time_one_hours
         delta_minutes = time_two_minutes - time_one_minutes
@@ -102,6 +100,8 @@ class TimeCard:
         if delta_minutes < 0:
             delta_minutes = 60 + delta_minutes
             delta_hours -= 1
+
+        
 
         return [delta_hours, delta_minutes]
 
@@ -175,7 +175,7 @@ class TimeCard:
         LEFT JOIN timecards ON employees.id = timecards.employee_id
         LEFT JOIN breaks ON breaks.timecard_id = timecards.id;
         """
-        results = connectToMySQL(cls.db_name).query_db(query, data)
+        results = connectToMySQL(cls.db_name).query_db(query)
         all_employees = []
         if len(results) > 0:
             i = 0

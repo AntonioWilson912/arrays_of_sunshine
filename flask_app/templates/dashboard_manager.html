@@ -25,18 +25,18 @@
         <h2>Your Week in Review</h2>
         <p>({{ this_week.week_start|strftime }} - {{ this_week.week_end|strftime }})</p>
         <div class="row d-flex justify-content-center">
-            <div class="col-5 bg-light border border-dark mr-4 rounded p-4">
+            <div class="col-lg-5 col-md-4 bg-light border border-dark mr-4 rounded p-4">
                 <h2>Est. Total Hours: {{ total_hours }} hrs.</h2>
             </div>
-            <div class="col-5 bg-light border border-dark mr-4 rounded p-4">
+            <div class="col-lg-5 col-md-4 bg-light border border-dark mr-4 rounded p-4">
                 <h2>Est. Total Wages: ${{ total_wages }}</h2>
             </div>
         </div>
         <div class="row d-flex justify-content-center p-5">
-            <div class="col">
+            <div class="col-lg-6 mb-4">
                 <h4>Who contributed to the team this week?</h4>
             </div>
-            <div class="col">
+            <div class="col-lg-6">
                 <ul class="list-group">
                     {% if worked_employees|length > 0 %}
                     {% for this_employee in worked_employees %}
@@ -53,13 +53,13 @@
             </div>
         </div>
         <div class="row">
-            <div class="col">
+            <div class="col-lg-4 pb-4">
                 <a class="btn btn-success" href="/generate_payroll" role="button">Generate Payroll Report</a>
             </div>
-            <div class="col">
+            <div class="col-lg-4 pb-4">
                 <a class="btn btn-primary" href="/timesheets" role="button">Access Timesheets</a>
             </div>
-            <div class="col">
+            <div class="col-lg-4">
                 <a class="btn btn-danger" href="/team" role="button">Team Roster</a>
             </div>
         </div>

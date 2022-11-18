@@ -282,11 +282,20 @@ class Employee:
         return connectToMySQL(cls.db_name).query_db(query, data)
 
     @classmethod
+    def rehire_employee(cls, data):
+        query = """
+        UPDATE employees
+        SET status = "HIRED"
+        WHERE id = %(id)s;
+        """
+        return connectToMySQL(cls.db_name).query_db(query, data)
+
+    @classmethod
     def terminate_employee(cls, data):
         query = """
         UPDATE employees
         SET status = "TERMINATED"
-        WHERE id= %(id)s;
+        WHERE id = %(id)s;
         """
         return connectToMySQL(cls.db_name).query_db(query, data)
 

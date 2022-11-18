@@ -6,6 +6,21 @@
     color: #ccc;
 }
 
+.link-danger {
+    color: red;
+}
+
+.link-danger:hover {
+    color: rgb(243, 66, 66);
+}
+
 .btn-orange {
     background-color: orange;
+}
+
+.top-right {
+    position: relative;
+    top: -75px;
+    left: -50px;
+    font-size: 1.5rem;
 }

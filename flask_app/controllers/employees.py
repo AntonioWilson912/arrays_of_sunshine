@@ -192,7 +192,7 @@ def view_employee(id):
 
     this_employee = timecard.TimeCard.get_all_time_cards_for_user({"employee_id": id })
     logged_in_employee = employee.Employee.get_employee_by_id({ "id": session["id"] })
-    if len(this_employee.phone_number) == 10:
+    if this_employee.phone_number and len(this_employee.phone_number) == 10:
         this_employee.phone_number = f"{this_employee.phone_number[:3]}-{this_employee.phone_number[3:6]}-{this_employee.phone_number[6:]}"
 
     this_employee.ytd_hours = 0.0
@@ -295,6 +295,15 @@ def terminate_employee(id):
     employee.Employee.terminate_employee(data)
     return redirect("/team")
 
+@app.route("/team/<int:id>/rehire")
+def rehire_employee(id):
+    if not "id" in session:
+        return redirect("/")
+
+    data = {"id": id}
+    employee.Employee.rehire_employee(data)
+    return redirect("/team")
+
 @app.route('/team')
 def team_roster():
     if 'id' not in session:
@@ -303,11 +312,16 @@ def team_roster():
     current_employee = employee.Employee.get_employee_by_id({ "id": session["id"] })
     roles = role.Role.get_all_roles()
 
+    all_employees = []
+
     for this_employee in employees:
+        if this_employee.status != "HIRED":
+            continue
         if len(this_employee.phone_number) == 10:
             this_employee.phone_number = f"{this_employee.phone_number[:3]}-{this_employee.phone_number[3:6]}-{this_employee.phone_number[6:]}"
-    
-    return render_template('team_roster.html', all_employees = employees, current_employee = current_employee, all_roles = roles)
+        all_employees.append(this_employee)
+
+    return render_template('team_roster.html', all_employees = all_employees, current_employee = current_employee, all_roles = roles)
     
 @app.route("/logout")
 def logout():

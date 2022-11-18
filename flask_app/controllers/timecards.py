@@ -57,8 +57,14 @@ def timesheets():
         current_employee.total_hours = 0.0
         for current_timecard in current_employee.timecards:
             current_employee.total_hours += current_timecard.hours_worked
-            current_timecard.time_in = str(current_timecard.time_in)[:5]
-            current_timecard.time_out = str(current_timecard.time_out)[:5]
+            current_timecard.time_in = str(current_timecard.time_in)
+            current_timecard.time_out = str(current_timecard.time_out)
+            if len(current_timecard.time_in) != 8:
+                current_timecard.time_in = "0" + current_timecard.time_in
+            if len(current_timecard.time_out) != 8:
+                current_timecard.time_out = "0" + current_timecard.time_out
+            current_timecard.time_in = current_timecard.time_in[:5]
+            current_timecard.time_out = current_timecard.time_out[:5]
         #print(float(current_employee.pay_rate))
         current_employee.total_wages = "{:.2f}".format(float(current_employee.pay_rate) * current_employee.total_hours)
 
@@ -83,8 +89,8 @@ def view_employee_timecards(employee_id):
             this_timecard.time_in = "0" + this_timecard.time_in
         if len(this_timecard.time_out) != 8:
             this_timecard.time_out = "0" + this_timecard.time_out
-        this_timecard.time_in = str(this_timecard.time_in)[:5]
-        this_timecard.time_out = str(this_timecard.time_out)[:5]
+        this_timecard.time_in = this_timecard.time_in[:5]
+        this_timecard.time_out = this_timecard.time_out[:5]
     this_employee.total_wages = "{:.2f}".format(this_employee.total_hours * float(this_employee.pay_rate))
 
     logged_in_employee = employee.Employee.get_employee_by_id({ "id": session["id"] })
@@ -115,7 +121,7 @@ def create_timecard(employee_id):
         timecard.TimeCard.create_time_card(data)
         return redirect("/timesheets")
 
-    return redirect(f"/team/{employee_id}/timecards/create")
+    return redirect(f"/team/{employee_id}/timecards/new")
 
 @app.route("/team/<int:employee_id>/timecards/<int:timecard_id>")
 def view_timecard(employee_id, timecard_id):

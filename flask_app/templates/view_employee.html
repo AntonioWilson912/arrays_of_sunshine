@@ -26,7 +26,7 @@
         <div class="row">
             <div class="col">
                 <img src="{{ this_employee.avatar_url }}" alt="avatar" class="rounded-circle img-thumbnail" width="200">
-                <a href="/team/{{ this_employee.id }}/edit"><i class="fa-solid fa-pencil"></i></a>
+                <a href="/team/{{ this_employee.id }}/edit"><i class="fa-solid fa-pencil top-right"></i></a>
             </div>
         </div>
         <div class="row">
@@ -42,7 +42,11 @@
             </div>
             <div class="col">
                 <i class="fa-solid fa-phone"></i>
-                {{ this_employee.phone_number }}
+                {% if this_employee.phone_number %}
+                    {{ this_employee.phone_number }}
+                {% else %}
+                    <p><em>No phone number available</em></p>
+                {% endif%}
             </div>
             <div class="col">
                 <i class="fa-solid fa-cake-candles"></i>
@@ -77,9 +81,15 @@
                 <a class="btn btn-success" href="/team/{{ this_employee.id }}/edit" role="button">Edit Info</a>
             </div>
             {% if logged_in_employee.is_manager == 1 %}
+            {% if this_employee.status == "HIRED" %}
             <div class="col">
                 <a class="btn btn-warning" href="/team/{{ this_employee.id }}/terminate" role="button">Terminate</a>
             </div>
+            {% elif this_employee.status == "TERMINATED" %}
+            <div class="col">
+                <a href="/team/{{ this_employee.id }}/rehire" class="btn btn-warning" role="button">Re-Hire</a>
+            </div>
+            {% endif %}
             <div class="col">
                 <a class="btn btn-danger" href="/team/{{ this_employee.id }}/delete" role="button">Delete</a>
             </div>

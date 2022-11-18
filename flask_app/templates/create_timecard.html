@@ -25,6 +25,13 @@
         <h2 class="text-center">{{ this_employee.first_name }} {{ this_employee.last_name }}</h2>
         <div class="container border border-dark p-4 mt-4">
             <h4 class="text-center">New Time Card</h4>
+            {% with messages = get_flashed_messages(category_filter=["timecard"]) %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <p class="text-danger">{{message}}</p> 
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
             <form action="/team/{{ this_employee.id }}/timecards/create" method="post">
                 <div class="form-group">
                     <div class="row">
