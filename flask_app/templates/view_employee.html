@@ -26,7 +26,9 @@
         <div class="row">
             <div class="col">
                 <img src="{{ this_employee.avatar_url }}" alt="avatar" class="rounded-circle img-thumbnail" width="200">
+                {% if this_employee.id == logged_in_employee.id or logged_in_employee.is_manager == 1 %}
                 <a href="/team/{{ this_employee.id }}/edit"><i class="fa-solid fa-pencil top-right"></i></a>
+                {% endif %}
             </div>
         </div>
         <div class="row">
@@ -45,7 +47,7 @@
                 {% if this_employee.phone_number %}
                     {{ this_employee.phone_number }}
                 {% else %}
-                    <p><em>No phone number available</em></p>
+                    <span><em>No phone number available</em></span>
                 {% endif%}
             </div>
             <div class="col">
@@ -53,7 +55,7 @@
                 {% if this_employee.birthdate %}
                     {{ this_employee.birthdate|strftime }}
                 {% else %}
-                    <p><em>No birthdate available</em></p>
+                    <span><em>No birthdate available</em></span>
                 {% endif%}
             </div>
         </div>

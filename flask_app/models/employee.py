@@ -61,13 +61,14 @@ class Employee:
     def validate_register_employee(data):
         is_valid = True 
         # Assume true and assign false if it is not valid.
-        if not Employee.get_employee_by_email(data):
+
+        employee_data = Employee.get_employee_by_email(data)
+
+        if not employee_data:
             flash("Invalid email address!", "register")
             is_valid = False
         else:
-            employee_data = Employee.get_employee_by_email(data)
-
-            if len(employee_data.password) > 0:
+            if employee_data.password:
                 flash("Email has already been registered!", "register")
                 return False
             
@@ -170,8 +171,57 @@ class Employee:
     def get_all_employees(cls):
         query = """
         SELECT * FROM employees
+        LEFT JOIN roles ON employees.role_id = roles.id;
+        """
+        results = connectToMySQL(cls.db_name).query_db(query)
+        employees = []
+        if len(results) > 0:
+            for employee_data in results:
+                employee = cls(employee_data)
+                role_data = {
+                    "id": employee_data["roles.id"],
+                    "name": employee_data["name"],
+                    "created_at": employee_data["roles.created_at"],
+                    "updated_at": employee_data["roles.updated_at"]
+                }
+                role_obj = role.Role(role_data)
+                employee.role = role_obj
+
+                employees.append(employee)
+
+        return employees
+
+    @classmethod
+    def get_all_current_employees(cls):
+        query = """
+        SELECT * FROM employees
         LEFT JOIN roles ON employees.role_id = roles.id
         WHERE status = "HIRED";
+        """
+        results = connectToMySQL(cls.db_name).query_db(query)
+        employees = []
+        if len(results) > 0:
+            for employee_data in results:
+                employee = cls(employee_data)
+                role_data = {
+                    "id": employee_data["roles.id"],
+                    "name": employee_data["name"],
+                    "created_at": employee_data["roles.created_at"],
+                    "updated_at": employee_data["roles.updated_at"]
+                }
+                role_obj = role.Role(role_data)
+                employee.role = role_obj
+
+                employees.append(employee)
+
+        return employees
+
+    @classmethod
+    def get_all_terminated_employees(cls):
+        query = """
+        SELECT * FROM employees
+        LEFT JOIN roles ON employees.role_id = roles.id
+        WHERE status = "TERMINATED";
         """
         results = connectToMySQL(cls.db_name).query_db(query)
         employees = []
@@ -223,6 +273,8 @@ class Employee:
         WHERE employees.id = %(id)s;
         """
         results = connectToMySQL(cls.db_name).query_db(query, data)
+        if len(results) == 0:
+            return None
         
         employee_data = results[0]
         employee_obj = cls(employee_data)

@@ -204,7 +204,7 @@ def view_employee(id):
             this_employee.ytd_hours += this_timecard.hours_worked
 
     this_employee.role = employee.Employee.get_employee_by_id({ "id": id }).role
-    if this_employee.avatar_url == None:
+    if not this_employee.avatar_url:
         this_employee.avatar_url = "https://www.blexar.com/avatar.png"
 
     return render_template("view_employee.html", this_employee=this_employee, logged_in_employee=logged_in_employee)
