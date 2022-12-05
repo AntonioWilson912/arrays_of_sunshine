@@ -1,6 +1,6 @@
 from flask_app import app
 from flask_app.models import employee, timecard, timecard_break
-from flask import session, redirect, render_template, request
+from flask import session, redirect, render_template, request, jsonify
 from datetime import datetime, timedelta
 
 @app.route("/generate_payroll")
@@ -117,11 +117,16 @@ def create_timecard(employee_id):
         "time_out": request.form["time_out"]
     }
 
-    if timecard.TimeCard.validate_time_card(data):
-        timecard.TimeCard.create_time_card(data)
-        return redirect("/timesheets")
+    errors = timecard.TimeCard.validate_time_card(data)
+    if len(errors) > 0:
+        return jsonify(errors=errors)
+    return jsonify(message="Good!")
 
-    return redirect(f"/team/{employee_id}/timecards/new")
+    # if timecard.TimeCard.validate_time_card(data):
+    #     timecard.TimeCard.create_time_card(data)
+    #     return redirect("/timesheets")
+
+    # return redirect(f"/team/{employee_id}/timecards/new")
 
 @app.route("/team/<int:employee_id>/timecards/<int:timecard_id>")
 def view_timecard(employee_id, timecard_id):

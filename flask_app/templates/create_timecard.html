@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <title>Edit Time Card - Arrays of Sunshine</title>
+    <title>New Time Card - Arrays of Sunshine</title>
+    <script src="https://kit.fontawesome.com/1562d2a823.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -25,14 +26,15 @@
         <h2 class="text-center">{{ this_employee.first_name }} {{ this_employee.last_name }}</h2>
         <div class="container border border-dark p-4 mt-4">
             <h4 class="text-center">New Time Card</h4>
-            {% with messages = get_flashed_messages(category_filter=["timecard"]) %}
+            <ul id="newTimecardErrors"></ul>
+            <!-- {% with messages = get_flashed_messages(category_filter=["timecard"]) %}
                 {% if messages %}
                     {% for message in messages %}
                         <p class="text-danger">{{message}}</p> 
                     {% endfor %}
                 {% endif %}
-            {% endwith %}
-            <form action="/team/{{ this_employee.id }}/timecards/create" method="post">
+            {% endwith %} -->
+            <form id="createTimecardForm" method="post">
                 <div class="form-group">
                     <div class="row">
                         <div class="col">
@@ -62,30 +64,15 @@
                     </div>
                 </div>
                 <p class="text-center"><u>Breaks</u></p>
-                <div class="form-group">
-                    <div class="row">
-                        <div class="col">
-                            <label class="control-label" for="time_worked">1st Break:</label>
-                        </div>
-                        <div class="col">
-                            <div class="row">
-                                <div class="col">
-                                    <input class="form-control" id="date" name="date" type="time">
-                                </div>
-                                <div class="col">
-                                    <input class="form-control" id="date" name="date" type="time">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <button type="button" class="btn btn-orange">+ Add Break</button>
+                <div class="form-group" id="breakContainer"></div>
+                <button type="button" class="btn btn-orange" onclick="addBreak();">+ Add Break</button>
                 <div class="mt-3">
                     <input class="btn btn-primary" type="submit" value="Save Time Card">
                 </div>
             </form>
         </div>
     </div>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/timecard_new_script.js') }}" async></script>
 </body>
 
 </html>

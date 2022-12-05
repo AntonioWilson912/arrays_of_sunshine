@@ -23,34 +23,30 @@ class TimeCard:
 
     @staticmethod
     def validate_time_card(data):
-        is_valid = True
+        errors = {}
 
         if len(data["date"]) == 0:
-            flash("Date must be present.", "timecard")
-            return False
+            errors["date"] = "Date must be present."
+            return errors
 
         # Test whether the input timecard data overlaps with an existing timecard
         all_timecards_for_date_employee = TimeCard.get_timecards_by_date(data)
         for this_timecard in all_timecards_for_date_employee:
             if this_timecard.time_in > data["time_in"] and this_timecard.time_in < data["time_out"]:
-                flash("Time in cannot overlap a time out of another timecard.", "timecard")
-                is_valid = False
+                errors["time_in_overlap"] = "Time in cannot overlap a time out of another timecard."
                 break
             if this_timecard.timeout < data["time_out"] and this_timecard.time_out > data["time_in"]:
-                flash("Time out cannot overlap a time in of another timecard.", "timecard")
-                is_valid = False
+                errors["time_out_overlap"] = "Time out cannot overlap a time in of another timecard."
                 break
 
         if len(data["time_in"]) == 0:
-            flash("Time in must be present.", "timecard")
-            is_valid = False
+            errors["time_in"] = "Time in must be present."
         if data["time_in"] >= data["time_out"]:
-            flash("Time in must be less than time out.", "timecard")
-            is_valid = False
+            errors["time_in_gt"] = "Time in must be less than time out."
         if len(data["time_out"]) == 0:
-            flash("Time out must be present.", "timecard")
+            errors["time_out"] = "Time out must be present."
 
-        return is_valid
+        return errors
 
     @staticmethod
     def validate_existing_time_card(data):
